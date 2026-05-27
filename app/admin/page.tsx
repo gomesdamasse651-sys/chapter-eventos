@@ -1,68 +1,86 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { createClient } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 type Ingresso = {
-  id: string;
-  nome: string;
-  email: string;
-  sexo: string;
-  preco: number;
-  status: string;
-  seguro: boolean;
-  qr_code: string | null;
-  paid_at: string | null;
-  lotes: { numero: number } | null;
-  cupons: { codigo: string } | null;
+  id: string; nome: string; email: string; sexo: string; preco: number;
+  status: string; seguro: boolean; qr_code: string | null; paid_at: string | null;
+  lotes: { numero: number } | null; cupons: { codigo: string } | null;
 };
-
 type Cupom = { id: string; codigo: string; criado_por: string; usos: number; ativo: boolean };
-
 type Lote = { numero: number; preco_f: number; preco_m: number; vendidos_f: number; vendidos_m: number; limite_f: number; limite_m: number; ativo: boolean };
+type Usuario = { id: string; email: string; nome: string; role: string; criado_em: string };
+type AdminInfo = { email: string; nome: string; role: string };
 
 export default function Admin() {
-  const [senha, setSenha] = useState("");
-  const [autenticado, setAutenticado] = useState(false);
-  const [senhaErro, setSenhaErro] = useState("");
+  const router = useRouter();
+  const [adminInfo, setAdminInfo] = useState<AdminInfo | null>(null);
+  const [loading, setLoading] = useState(true);
   const [ingressos, setIngressos] = useState<Ingresso[]>([]);
   const [cupons, setCupons] = useState<Cupom[]>([]);
   const [lotes, setLotes] = useState<Lote[]>([]);
-  const [aba, setAba] = useState<"ingressos" | "cupons" | "lotes">("ingressos");
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [aba, setAba] = useState<"ingressos" | "cupons" | "lotes" | "usuarios">("ingressos");
   const [novoCupom, setNovoCupom] = useState({ codigo: "", criado_por: "" });
+  const [novoUsuario, setNovoUsuario] = useState({ email: "", nome: "", senha: "" });
   const [loadingExport, setLoadingExport] = useState(false);
-
-  const headers = { "x-admin-password": senha };
-
-  const carregarDados = useCallback(async () => {
-    const [resIngressos, resCupons, resLotes] = await Promise.all([
-      fetch("/api/admin/ingressos", { headers }),
-      fetch("/api/admin/cupons", { headers }),
-      fetch("/api/admin/lotes", { headers }),
-    ]);
-    if (resIngressos.ok) setIngressos((await resIngressos.json()).ingressos ?? []);
-    if (resCupons.ok) setCupons((await resCupons.json()).cupons ?? []);
-    if (resLotes.ok) setLotes((await resLotes.json()).lotes ?? []);
-  }, [senha]);
+  const [erroUsuario, setErroUsuario] = useState("");
 
   useEffect(() => {
-    if (autenticado) carregarDados();
-  }, [autenticado, carregarDados]);
+    fetch("/api/admin/auth")
+      .then((r) => {
+        if (r.status === 401 || r.status === 403) {
+          router.push("/admin/login");
+          return null;
+        }
+        return r.json();
+      })
+      .then((d) => {
+        if (d) { setAdminInfo(d); setLoading(false); }
+      });
+  }, [router]);
 
-  async function login(e: React.FormEvent) {
-    e.preventDefault();
-    const res = await fetch("/api/admin/ingressos", { headers: { "x-admin-password": senha } });
-    if (res.ok) {
-      setAutenticado(true);
-    } else {
-      setSenhaErro("Senha incorreta.");
+  const carregarDados = useCallback(async () => {
+    const [resI, resC, resL] = await Promise.all([
+      fetch("/api/admin/ingressos"),
+      fetch("/api/admin/cupons"),
+      fetch("/api/admin/lotes"),
+    ]);
+    if (resI.ok) setIngressos((await resI.json()).ingressos ?? []);
+    if (resC.ok) setCupons((await resC.json()).cupons ?? []);
+    if (resL.ok) setLotes((await resL.json()).lotes ?? []);
+  }, []);
+
+  const carregarUsuarios = useCallback(async () => {
+    const res = await fetch("/api/admin/usuarios");
+    if (res.ok) setUsuarios((await res.json()).usuarios ?? []);
+  }, []);
+
+  useEffect(() => {
+    if (!loading && adminInfo) {
+      carregarDados();
+      if (adminInfo.role === "superadmin") carregarUsuarios();
     }
+  }, [loading, adminInfo, carregarDados, carregarUsuarios]);
+
+  async function logout() {
+    await fetch("/api/admin/auth", { method: "DELETE" });
+    await supabase.auth.signOut();
+    router.push("/admin/login");
   }
 
   async function criarCupom(e: React.FormEvent) {
     e.preventDefault();
     await fetch("/api/admin/cupons", {
       method: "POST",
-      headers: { ...headers, "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(novoCupom),
     });
     setNovoCupom({ codigo: "", criado_por: "" });
@@ -72,22 +90,52 @@ export default function Admin() {
   async function toggleCupom(id: string, ativo: boolean) {
     await fetch("/api/admin/cupons", {
       method: "PATCH",
-      headers: { ...headers, "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, ativo: !ativo }),
     });
     carregarDados();
   }
 
+  async function criarUsuario(e: React.FormEvent) {
+    e.preventDefault();
+    setErroUsuario("");
+    const res = await fetch("/api/admin/usuarios", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(novoUsuario),
+    });
+    const data = await res.json();
+    if (!res.ok) { setErroUsuario(data.error ?? "Erro ao criar usuário."); return; }
+    setNovoUsuario({ email: "", nome: "", senha: "" });
+    carregarUsuarios();
+  }
+
+  async function removerUsuario(id: string) {
+    if (!confirm("Remover este admin?")) return;
+    await fetch("/api/admin/usuarios", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    carregarUsuarios();
+  }
+
   async function exportarExcel() {
     setLoadingExport(true);
-    const res = await fetch("/api/admin/export", { headers });
+    const res = await fetch("/api/admin/export");
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url;
-    a.download = `chapter-ingressos.xlsx`;
-    a.click();
+    a.href = url; a.download = "chapter-ingressos.xlsx"; a.click();
     setLoadingExport(false);
+  }
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-black text-white flex items-center justify-center">
+        <p className="text-zinc-600 text-xs tracking-widest uppercase">Carregando...</p>
+      </main>
+    );
   }
 
   const totalPagos = ingressos.filter((i) => i.status === "pago").length;
@@ -95,35 +143,31 @@ export default function Admin() {
   const totalM = ingressos.filter((i) => i.sexo === "M" && i.status === "pago").length;
   const receita = ingressos.filter((i) => i.status === "pago").reduce((acc, i) => acc + i.preco, 0);
 
-  if (!autenticado) {
-    return (
-      <main className="min-h-screen bg-black text-white flex items-center justify-center px-4">
-        <form onSubmit={login} className="w-full max-w-xs flex flex-col gap-4">
-          <h1 className="text-3xl font-bold tracking-tighter text-center">CHAPTER</h1>
-          <p className="text-zinc-500 text-xs tracking-widest uppercase text-center">Admin</p>
-          <input
-            type="password" required placeholder="Senha" value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            className="bg-transparent border border-zinc-800 px-4 py-3 text-white focus:outline-none focus:border-zinc-500 transition-colors"
-          />
-          {senhaErro && <p className="text-red-500 text-xs text-center">{senhaErro}</p>}
-          <button type="submit" className="py-3 bg-white text-black text-sm tracking-widest uppercase hover:bg-zinc-200 transition-all">
-            Entrar
-          </button>
-        </form>
-      </main>
-    );
-  }
+  const abas = ["ingressos", "cupons", "lotes", ...(adminInfo?.role === "superadmin" ? ["usuarios"] : [])] as const;
 
   return (
     <main className="min-h-screen bg-black text-white px-4 py-12">
       <div className="max-w-5xl mx-auto flex flex-col gap-8">
+        {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tighter">CHAPTER <span className="text-zinc-600 text-lg font-normal">Admin</span></h1>
-          <button onClick={exportarExcel} disabled={loadingExport}
-            className="px-6 py-2 border border-white text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all disabled:opacity-50">
-            {loadingExport ? "Exportando..." : "Exportar Excel"}
-          </button>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tighter">
+              CHAPTER <span className="text-zinc-600 text-lg font-normal">Admin</span>
+            </h1>
+            <p className="text-zinc-600 text-xs mt-1">
+              {adminInfo?.nome} · <span className="text-zinc-700">{adminInfo?.role}</span>
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <button onClick={exportarExcel} disabled={loadingExport}
+              className="px-4 py-2 border border-zinc-700 text-xs tracking-widest uppercase hover:border-white transition-all disabled:opacity-50">
+              {loadingExport ? "..." : "Exportar Excel"}
+            </button>
+            <button onClick={logout}
+              className="px-4 py-2 border border-zinc-800 text-xs tracking-widest uppercase text-zinc-500 hover:border-red-500 hover:text-red-400 transition-all">
+              Sair
+            </button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -143,8 +187,8 @@ export default function Admin() {
 
         {/* Abas */}
         <div className="flex gap-1 border-b border-zinc-900">
-          {(["ingressos", "cupons", "lotes"] as const).map((a) => (
-            <button key={a} onClick={() => setAba(a)}
+          {abas.map((a) => (
+            <button key={a} onClick={() => setAba(a as typeof aba)}
               className={`px-4 py-2 text-xs tracking-widest uppercase transition-colors ${aba === a ? "text-white border-b border-white" : "text-zinc-600 hover:text-zinc-400"}`}>
               {a}
             </button>
@@ -168,11 +212,11 @@ export default function Admin() {
               </thead>
               <tbody>
                 {ingressos.map((i) => (
-                  <tr key={i.id} className="border-b border-zinc-900 hover:bg-zinc-950 transition-colors">
+                  <tr key={i.id} className="border-b border-zinc-900 hover:bg-zinc-950">
                     <td className="py-2 pr-4">{i.nome}</td>
                     <td className="py-2 pr-4 text-zinc-500 text-xs">{i.email}</td>
                     <td className="py-2 pr-4">{i.sexo}</td>
-                    <td className="py-2 pr-4">{i.lotes?.numero ?? "-"}</td>
+                    <td className="py-2 pr-4">{(i.lotes as unknown as { numero: number } | null)?.numero ?? "-"}</td>
                     <td className="py-2 pr-4">R$ {i.preco},00</td>
                     <td className="py-2 pr-4">
                       <span className={`text-xs ${i.status === "pago" ? "text-green-400" : i.status === "reembolsado" ? "text-yellow-400" : "text-zinc-500"}`}>
@@ -204,7 +248,6 @@ export default function Admin() {
                 Criar
               </button>
             </form>
-
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-zinc-600 text-xs tracking-widest uppercase border-b border-zinc-900">
@@ -263,6 +306,65 @@ export default function Admin() {
               ))}
             </tbody>
           </table>
+        )}
+
+        {/* Usuários — só superadmin */}
+        {aba === "usuarios" && adminInfo?.role === "superadmin" && (
+          <div className="flex flex-col gap-6">
+            <form onSubmit={criarUsuario} className="flex flex-col gap-3">
+              <p className="text-xs tracking-widest uppercase text-zinc-500 border-b border-zinc-900 pb-2">Novo admin</p>
+              <div className="flex gap-3">
+                <input type="text" required placeholder="Nome" value={novoUsuario.nome}
+                  onChange={(e) => setNovoUsuario({ ...novoUsuario, nome: e.target.value })}
+                  className="bg-transparent border border-zinc-800 px-4 py-2 text-white text-sm focus:outline-none focus:border-zinc-500 flex-1"
+                />
+                <input type="email" required placeholder="Email" value={novoUsuario.email}
+                  onChange={(e) => setNovoUsuario({ ...novoUsuario, email: e.target.value })}
+                  className="bg-transparent border border-zinc-800 px-4 py-2 text-white text-sm focus:outline-none focus:border-zinc-500 flex-1"
+                />
+                <input type="password" required placeholder="Senha" value={novoUsuario.senha}
+                  onChange={(e) => setNovoUsuario({ ...novoUsuario, senha: e.target.value })}
+                  className="bg-transparent border border-zinc-800 px-4 py-2 text-white text-sm focus:outline-none focus:border-zinc-500 w-36"
+                />
+                <button type="submit" className="px-4 py-2 border border-white text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all">
+                  Criar
+                </button>
+              </div>
+              {erroUsuario && <p className="text-red-500 text-xs">{erroUsuario}</p>}
+            </form>
+
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-zinc-600 text-xs tracking-widest uppercase border-b border-zinc-900">
+                  <th className="text-left py-2 pr-4">Nome</th>
+                  <th className="text-left py-2 pr-4">Email</th>
+                  <th className="text-left py-2 pr-4">Role</th>
+                  <th className="text-left py-2">Ação</th>
+                </tr>
+              </thead>
+              <tbody>
+                {usuarios.map((u) => (
+                  <tr key={u.id} className="border-b border-zinc-900">
+                    <td className="py-2 pr-4">{u.nome}</td>
+                    <td className="py-2 pr-4 text-zinc-500 text-xs">{u.email}</td>
+                    <td className="py-2 pr-4">
+                      <span className={`text-xs ${u.role === "superadmin" ? "text-yellow-400" : "text-zinc-400"}`}>
+                        {u.role}
+                      </span>
+                    </td>
+                    <td className="py-2">
+                      {u.role !== "superadmin" && (
+                        <button onClick={() => removerUsuario(u.id)}
+                          className="text-xs text-zinc-600 hover:text-red-400 transition-colors">
+                          Remover
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </main>

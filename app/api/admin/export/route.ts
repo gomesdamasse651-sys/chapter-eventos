@@ -1,14 +1,19 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
 import * as XLSX from "xlsx";
 
-function checkAuth(req: NextRequest) {
-  const auth = req.headers.get("x-admin-password");
-  return auth === process.env.ADMIN_PASSWORD;
+async function getAdmin() {
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data } = await supabaseAdmin.from("admins").select("role").eq("id", user.id).single();
+  return data ?? null;
 }
 
-export async function GET(req: NextRequest) {
-  if (!checkAuth(req)) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+export async function GET() {
+  const admin = await getAdmin();
+  if (!admin) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
 
   const { data, error } = await supabaseAdmin
     .from("ingressos")
@@ -34,7 +39,6 @@ export async function GET(req: NextRequest) {
   const ws = XLSX.utils.json_to_sheet(rows);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Ingressos");
-
   const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
 
   return new NextResponse(buf, {

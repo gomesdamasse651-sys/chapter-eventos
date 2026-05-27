@@ -1,12 +1,18 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
 
-function checkAuth(req: NextRequest) {
-  return req.headers.get("x-admin-password") === process.env.ADMIN_PASSWORD;
+async function getAdmin() {
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data } = await supabaseAdmin.from("admins").select("role").eq("id", user.id).single();
+  return data ?? null;
 }
 
-export async function GET(req: NextRequest) {
-  if (!checkAuth(req)) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+export async function GET() {
+  const admin = await getAdmin();
+  if (!admin) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
 
   const { data, error } = await supabaseAdmin
     .from("ingressos")

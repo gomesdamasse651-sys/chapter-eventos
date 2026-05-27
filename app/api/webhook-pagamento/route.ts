@@ -94,21 +94,26 @@ export async function POST(req: NextRequest) {
   }
 
   // Envia email com QR codes
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "https://chapter-eventos.vercel.app";
   const primeiroIngresso = ingressos[0];
 
   const qrCodesHtml = updates
     .map(
-      (ing, i) => `
+      (ing, i) => {
+        const validarUrl = `${appUrl}/validar/${ing.qr_code}`;
+        // QR code gerado via API pública (compatível com clientes de email)
+        const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(validarUrl)}`;
+        return `
       <div style="margin-bottom:32px;text-align:center;">
         <p style="font-family:monospace;font-size:12px;color:#666;margin-bottom:8px;">
           Ingresso ${i + 1} de ${updates.length}
         </p>
-        <img src="${ing.qr_data_url}" alt="QR Code" style="width:200px;height:200px;display:block;margin:0 auto;" />
+        <img src="${qrImageUrl}" alt="QR Code" width="200" height="200" style="display:block;margin:0 auto;" />
         <p style="font-family:monospace;font-size:10px;color:#555;margin-top:8px;">${ing.qr_code}</p>
-        <a href="${appUrl}/validar/${ing.qr_code}" style="font-size:10px;color:#888;">Ver ingresso online</a>
+        <a href="${validarUrl}" style="font-size:11px;color:#aaa;">Ver ingresso online</a>
       </div>
-    `
+    `;
+      }
     )
     .join("");
 

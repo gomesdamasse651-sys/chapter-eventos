@@ -9,44 +9,65 @@ interface Props {
 export default function QrScanner({ onScan }: Props) {
   const [ativa, setAtiva] = useState(false);
   const [erro, setErro] = useState("");
-  const scannerRef = useRef<InstanceType<typeof import("html5-qrcode").Html5Qrcode> | null>(null);
-  const elementId = "qr-scanner-element";
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   async function iniciar() {
     setErro("");
-    const { Html5Qrcode } = await import("html5-qrcode");
-    scannerRef.current = new Html5Qrcode(elementId);
     try {
-      await scannerRef.current.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        (decodedText) => {
-          // Extrai só o UUID do QR code se for uma URL /validar/UUID
-          const match = decodedText.match(/\/validar\/([a-f0-9-]{36})/);
-          const valor = match ? match[1] : decodedText;
-          onScan(valor);
-          parar();
-        },
-        () => {}
-      );
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
       setAtiva(true);
+      iniciarLeitura();
     } catch {
       setErro("Sem acesso à câmera. Verifique as permissões.");
-      scannerRef.current = null;
     }
   }
 
-  async function parar() {
-    if (scannerRef.current) {
-      try { await scannerRef.current.stop(); } catch {}
-      scannerRef.current = null;
+  function iniciarLeitura() {
+    intervalRef.current = setInterval(async () => {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      if (!video || !canvas || video.readyState < 2) return;
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.drawImage(video, 0, 0);
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const jsQR = (await import("jsqr")).default;
+      const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+      if (code?.data) {
+        const match = code.data.match(/\/validar\/([a-f0-9-]{36})/);
+        const valor = match ? match[1] : code.data;
+        parar();
+        onScan(valor);
+      }
+    }, 200);
+  }
+
+  function parar() {
+    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
     }
+    if (videoRef.current) videoRef.current.srcObject = null;
     setAtiva(false);
   }
 
-  useEffect(() => {
-    return () => { parar(); };
-  }, []);
+  useEffect(() => () => parar(), []);
 
   return (
     <div className="flex flex-col gap-3">
@@ -64,11 +85,13 @@ export default function QrScanner({ onScan }: Props) {
 
       {erro && <p className="text-red-500 text-xs">{erro}</p>}
 
-      <div
-        id={elementId}
-        className={`w-full rounded overflow-hidden ${ativa ? "block" : "hidden"}`}
-        style={{ maxWidth: 320 }}
+      <video
+        ref={videoRef}
+        muted
+        playsInline
+        className={`w-full max-w-xs rounded ${ativa ? "block" : "hidden"}`}
       />
+      <canvas ref={canvasRef} className="hidden" />
     </div>
   );
 }

@@ -11,15 +11,15 @@ export async function GET(req: NextRequest) {
   console.log("[validar GET] qr recebido:", qr);
   console.log("[validar GET] query: SELECT FROM ingressos WHERE qr_code =", qr);
 
-  const { data, error } = await supabaseAdmin
+  const { data: rows, error } = await supabaseAdmin
     .from("ingressos")
     .select("id, nome, sexo, status, usado, lotes(numero)")
-    .eq("qr_code", qr)
-    .single();
+    .eq("qr_code", qr);
 
-  console.log("[validar GET] resultado:", { data, error });
+  console.log("[validar GET] resultado bruto:", JSON.stringify({ rows, error }));
 
-  if (!data) return NextResponse.json({ valido: false, erro: "QR code não encontrado.", supabase_error: error?.message });
+  const data = rows && rows.length > 0 ? rows[0] : null;
+  if (!data) return NextResponse.json({ valido: false, erro: "QR code não encontrado.", supabase_error: error?.message, rows_count: rows?.length ?? 0 });
 
   return NextResponse.json({
     valido: data.status === "pago",
@@ -41,15 +41,15 @@ export async function POST(req: NextRequest) {
   console.log("[validar POST] qr recebido:", qr);
   console.log("[validar POST] query: SELECT FROM ingressos WHERE qr_code =", qr);
 
-  const { data: ingresso, error: erroBusca } = await supabaseAdmin
+  const { data: rows2, error: erroBusca } = await supabaseAdmin
     .from("ingressos")
     .select("id, status, usado")
-    .eq("qr_code", qr)
-    .single();
+    .eq("qr_code", qr);
 
-  console.log("[validar POST] resultado:", { ingresso, erroBusca });
+  console.log("[validar POST] resultado bruto:", JSON.stringify({ rows2, erroBusca }));
 
-  if (!ingresso) return NextResponse.json({ error: "QR code não encontrado.", supabase_error: erroBusca?.message }, { status: 404 });
+  const ingresso = rows2 && rows2.length > 0 ? rows2[0] : null;
+  if (!ingresso) return NextResponse.json({ error: "QR code não encontrado.", supabase_error: erroBusca?.message, rows_count: rows2?.length ?? 0 }, { status: 404 });
   if (ingresso.status !== "pago") return NextResponse.json({ error: "Ingresso não pago." }, { status: 400 });
   if (ingresso.usado) return NextResponse.json({ error: "Ingresso já utilizado." }, { status: 409 });
 

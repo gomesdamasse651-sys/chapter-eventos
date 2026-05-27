@@ -120,6 +120,9 @@ export default function Admin() {
     if (!qr.trim()) return;
     setQrValidando(true);
     const uuid = extrairUuid(qr);
+    console.log("[validador] valor bruto:", qr);
+    console.log("[validador] UUID extraído:", uuid);
+    console.log("[validador] query: GET /api/admin/validar?qr=" + uuid);
     const res = await fetch(`/api/admin/validar?qr=${encodeURIComponent(uuid)}`);
     const data = await res.json();
     setQrResultado(data);
@@ -130,6 +133,9 @@ export default function Admin() {
     if (!qrInput.trim()) return;
     setQrValidando(true);
     const uuid = extrairUuid(qrInput);
+    console.log("[validador] valor bruto:", qrInput);
+    console.log("[validador] UUID extraído:", uuid);
+    console.log("[validador] query: POST /api/admin/validar com qr=" + uuid);
     const res = await fetch("/api/admin/validar", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ qr: uuid }),

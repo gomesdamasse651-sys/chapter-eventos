@@ -60,7 +60,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Erro ao registrar pedido." }, { status: 500 });
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "https://chapter-eventos.vercel.app";
+  const redirectUrl = `${appUrl}/confirmacao?order_nsu=${orderNsu}`;
+  const webhookUrl = `${appUrl}/api/webhook-pagamento`;
 
   const items = [
     {
@@ -77,8 +79,8 @@ export async function POST(req: NextRequest) {
     handle: process.env.INFINITEPAY_HANDLE,
     order_nsu: orderNsu,
     items,
-    redirect_url: `${appUrl}/confirmacao?order_nsu=${orderNsu}`,
-    webhook_url: `${appUrl}/api/webhook-pagamento`,
+    ...(redirectUrl.startsWith("https://") ? { redirect_url: redirectUrl } : {}),
+    ...(webhookUrl.startsWith("https://") ? { webhook_url: webhookUrl } : {}),
     customer: {
       name: nome,
       email,

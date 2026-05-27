@@ -107,10 +107,20 @@ export default function Admin() {
     setLoadingExport(false);
   }
 
+  function extrairUuid(valor: string): string {
+    const v = valor.trim();
+    if (v.includes("http")) {
+      const segmentos = v.split("/").filter(Boolean);
+      return segmentos[segmentos.length - 1] ?? v;
+    }
+    return v;
+  }
+
   async function buscarQr(qr: string) {
     if (!qr.trim()) return;
     setQrValidando(true);
-    const res = await fetch(`/api/admin/validar?qr=${encodeURIComponent(qr.trim())}`);
+    const uuid = extrairUuid(qr);
+    const res = await fetch(`/api/admin/validar?qr=${encodeURIComponent(uuid)}`);
     const data = await res.json();
     setQrResultado(data);
     setQrValidando(false);
@@ -119,9 +129,10 @@ export default function Admin() {
   async function validarEntrada() {
     if (!qrInput.trim()) return;
     setQrValidando(true);
+    const uuid = extrairUuid(qrInput);
     const res = await fetch("/api/admin/validar", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ qr: qrInput.trim() }),
+      body: JSON.stringify({ qr: uuid }),
     });
     const data = await res.json();
     if (res.ok) {
@@ -461,9 +472,10 @@ export default function Admin() {
             </div>
 
             <QrScanner onScan={(valor) => {
-              setQrInput(valor);
+              const uuid = extrairUuid(valor);
+              setQrInput(uuid);
               setQrResultado(null);
-              buscarQr(valor);
+              buscarQr(uuid);
             }} />
 
             {qrResultado && (

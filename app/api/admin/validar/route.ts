@@ -8,13 +8,18 @@ export async function GET(req: NextRequest) {
   const qr = req.nextUrl.searchParams.get("qr");
   if (!qr) return NextResponse.json({ error: "QR code não informado." }, { status: 400 });
 
-  const { data } = await supabaseAdmin
+  console.log("[validar GET] qr recebido:", qr);
+  console.log("[validar GET] query: SELECT FROM ingressos WHERE qr_code =", qr);
+
+  const { data, error } = await supabaseAdmin
     .from("ingressos")
     .select("id, nome, sexo, status, usado, lotes(numero)")
     .eq("qr_code", qr)
     .single();
 
-  if (!data) return NextResponse.json({ valido: false, erro: "QR code não encontrado." });
+  console.log("[validar GET] resultado:", { data, error });
+
+  if (!data) return NextResponse.json({ valido: false, erro: "QR code não encontrado.", supabase_error: error?.message });
 
   return NextResponse.json({
     valido: data.status === "pago",
@@ -33,13 +38,18 @@ export async function POST(req: NextRequest) {
   const { qr } = await req.json();
   if (!qr) return NextResponse.json({ error: "QR code não informado." }, { status: 400 });
 
-  const { data: ingresso } = await supabaseAdmin
+  console.log("[validar POST] qr recebido:", qr);
+  console.log("[validar POST] query: SELECT FROM ingressos WHERE qr_code =", qr);
+
+  const { data: ingresso, error: erroBusca } = await supabaseAdmin
     .from("ingressos")
     .select("id, status, usado")
     .eq("qr_code", qr)
     .single();
 
-  if (!ingresso) return NextResponse.json({ error: "QR code não encontrado." }, { status: 404 });
+  console.log("[validar POST] resultado:", { ingresso, erroBusca });
+
+  if (!ingresso) return NextResponse.json({ error: "QR code não encontrado.", supabase_error: erroBusca?.message }, { status: 404 });
   if (ingresso.status !== "pago") return NextResponse.json({ error: "Ingresso não pago." }, { status: 400 });
   if (ingresso.usado) return NextResponse.json({ error: "Ingresso já utilizado." }, { status: 409 });
 

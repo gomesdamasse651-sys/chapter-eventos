@@ -3,6 +3,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import dynamic from "next/dynamic";
+
+const QrScanner = dynamic(() => import("@/components/QrScanner"), { ssr: false });
 
 type Ingresso = {
   id: string; nome: string; email: string; sexo: string; preco: number;
@@ -456,6 +459,12 @@ export default function Admin() {
                 {qrValidando ? "..." : "Verificar"}
               </button>
             </div>
+
+            <QrScanner onScan={(valor) => {
+              setQrInput(valor);
+              setQrResultado(null);
+              buscarQr(valor);
+            }} />
 
             {qrResultado && (
               <div className={`border p-6 flex flex-col gap-4 ${

@@ -9,7 +9,8 @@ export async function GET(req: NextRequest) {
   if (!qr) return NextResponse.json({ error: "QR code não informado." }, { status: 400 });
 
   console.log("[validar GET] qr recebido:", qr);
-  console.log("[validar GET] query: SELECT FROM ingressos WHERE qr_code =", qr);
+  console.log("[validar GET] url:", process.env.NEXT_PUBLIC_SUPABASE_URL?.slice(0, 30));
+  console.log("[validar GET] key:", process.env.SUPABASE_SERVICE_KEY?.slice(0, 20));
 
   const { data: rows, error } = await supabaseAdmin
     .from("ingressos")

@@ -1,26 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
-import { supabaseAdmin } from "@/lib/supabase";
 
-export async function GET(req: NextRequest) {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+export async function POST(req: NextRequest) {
+  const { senha } = await req.json();
 
-  if (!user) return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
+  if (senha !== process.env.ADMIN_PASSWORD) {
+    return NextResponse.json({ error: "Senha incorreta." }, { status: 401 });
+  }
 
-  const { data: admin } = await supabaseAdmin
-    .from("admins")
-    .select("nome, role")
-    .eq("id", user.id)
-    .single();
+  const res = NextResponse.json({ success: true });
+  res.cookies.set("admin_auth", "true", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 7, // 7 dias
+    path: "/",
+  });
 
-  if (!admin) return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
-
-  return NextResponse.json({ email: user.email, nome: admin.nome, role: admin.role });
+  return res;
 }
 
 export async function DELETE() {
-  const supabase = await createSupabaseServerClient();
-  await supabase.auth.signOut();
-  return NextResponse.json({ success: true });
+  const res = NextResponse.json({ success: true });
+  res.cookies.delete("admin_auth");
+  return res;
 }

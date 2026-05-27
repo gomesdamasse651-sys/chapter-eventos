@@ -1,16 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
 export default function AdminLogin() {
-  const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,16 +14,19 @@ export default function AdminLogin() {
     setLoading(true);
     setErro("");
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+    const res = await fetch("/api/admin/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ senha }),
+    });
 
-    if (error) {
-      setErro("Email ou senha incorretos.");
+    if (res.ok) {
+      router.push("/admin");
+      router.refresh();
+    } else {
+      setErro("Senha incorreta.");
       setLoading(false);
-      return;
     }
-
-    router.push("/admin");
-    router.refresh();
   }
 
   return (
@@ -42,22 +38,13 @@ export default function AdminLogin() {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-xs tracking-widest uppercase text-zinc-500">Email</label>
-          <input
-            type="email" required value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="bg-transparent border border-zinc-800 px-4 py-3 text-white focus:outline-none focus:border-zinc-500 transition-colors"
-            placeholder="seu@email.com"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1">
           <label className="text-xs tracking-widest uppercase text-zinc-500">Senha</label>
           <input
             type="password" required value={senha}
             onChange={(e) => setSenha(e.target.value)}
             className="bg-transparent border border-zinc-800 px-4 py-3 text-white focus:outline-none focus:border-zinc-500 transition-colors"
             placeholder="••••••••"
+            autoFocus
           />
         </div>
 

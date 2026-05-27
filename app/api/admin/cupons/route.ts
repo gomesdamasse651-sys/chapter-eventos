@@ -1,18 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { checkAdminAuth } from "@/lib/admin-auth";
 
-async function getAdmin() {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-  const { data } = await supabaseAdmin.from("admins").select("role").eq("id", user.id).single();
-  return data ?? null;
-}
-
-export async function GET() {
-  const admin = await getAdmin();
-  if (!admin) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+export async function GET(req: NextRequest) {
+  if (!checkAdminAuth(req)) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
 
   const { data, error } = await supabaseAdmin
     .from("cupons").select("*").order("criado_em", { ascending: false });
@@ -22,8 +13,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const admin = await getAdmin();
-  if (!admin) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  if (!checkAdminAuth(req)) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
 
   const { codigo, criado_por } = await req.json();
   const { data, error } = await supabaseAdmin
@@ -36,8 +26,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const admin = await getAdmin();
-  if (!admin) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  if (!checkAdminAuth(req)) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
 
   const { id, ativo } = await req.json();
   const { error } = await supabaseAdmin.from("cupons").update({ ativo }).eq("id", id);

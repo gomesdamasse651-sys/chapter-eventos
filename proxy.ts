@@ -1,4 +1,3 @@
-import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function proxy(req: NextRequest) {
@@ -7,24 +6,8 @@ export async function proxy(req: NextRequest) {
   if (!req.nextUrl.pathname.startsWith("/admin")) return res;
   if (req.nextUrl.pathname === "/admin/login") return res;
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return req.cookies.getAll(); },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            res.cookies.set(name, value, options)
-          );
-        },
-      },
-    }
-  );
-
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
+  const auth = req.cookies.get("admin_auth");
+  if (!auth || auth.value !== "true") {
     return NextResponse.redirect(new URL("/admin/login", req.url));
   }
 

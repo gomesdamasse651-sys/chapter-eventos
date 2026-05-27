@@ -1,23 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { checkAdminAuth } from "@/lib/admin-auth";
 import * as XLSX from "xlsx";
 
-async function getAdmin() {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-  const { data } = await supabaseAdmin.from("admins").select("role").eq("id", user.id).single();
-  return data ?? null;
-}
-
-export async function GET() {
-  const admin = await getAdmin();
-  if (!admin) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+export async function GET(req: NextRequest) {
+  if (!checkAdminAuth(req)) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
 
   const { data, error } = await supabaseAdmin
     .from("ingressos")
-    .select("nome, email, telefone, sexo, lote_id, preco, seguro, cupom_id, qr_code, status, paid_at, lotes(numero), cupons(codigo)")
+    .select("nome, email, telefone, sexo, preco, seguro, qr_code, status, paid_at, lotes(numero), cupons(codigo)")
     .order("criado_em", { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

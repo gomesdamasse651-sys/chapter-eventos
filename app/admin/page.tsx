@@ -1,13 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 type Ingresso = {
   id: string; nome: string; email: string; sexo: string; preco: number;
@@ -16,36 +10,16 @@ type Ingresso = {
 };
 type Cupom = { id: string; codigo: string; criado_por: string; usos: number; ativo: boolean };
 type Lote = { numero: number; preco_f: number; preco_m: number; vendidos_f: number; vendidos_m: number; limite_f: number; limite_m: number; ativo: boolean };
-type Usuario = { id: string; email: string; nome: string; role: string; criado_em: string };
-type AdminInfo = { email: string; nome: string; role: string };
 
 export default function Admin() {
   const router = useRouter();
-  const [adminInfo, setAdminInfo] = useState<AdminInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [ingressos, setIngressos] = useState<Ingresso[]>([]);
   const [cupons, setCupons] = useState<Cupom[]>([]);
   const [lotes, setLotes] = useState<Lote[]>([]);
-  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
-  const [aba, setAba] = useState<"ingressos" | "cupons" | "lotes" | "usuarios">("ingressos");
+  const [aba, setAba] = useState<"ingressos" | "cupons" | "lotes">("ingressos");
   const [novoCupom, setNovoCupom] = useState({ codigo: "", criado_por: "" });
-  const [novoUsuario, setNovoUsuario] = useState({ email: "", nome: "", senha: "" });
   const [loadingExport, setLoadingExport] = useState(false);
-  const [erroUsuario, setErroUsuario] = useState("");
-
-  useEffect(() => {
-    fetch("/api/admin/auth")
-      .then((r) => {
-        if (r.status === 401 || r.status === 403) {
-          router.push("/admin/login");
-          return null;
-        }
-        return r.json();
-      })
-      .then((d) => {
-        if (d) { setAdminInfo(d); setLoading(false); }
-      });
-  }, [router]);
 
   const carregarDados = useCallback(async () => {
     const [resI, resC, resL] = await Promise.all([
@@ -54,25 +28,16 @@ export default function Admin() {
       fetch("/api/admin/lotes"),
     ]);
     if (resI.ok) setIngressos((await resI.json()).ingressos ?? []);
+    else if (resI.status === 401) { router.push("/admin/login"); return; }
     if (resC.ok) setCupons((await resC.json()).cupons ?? []);
     if (resL.ok) setLotes((await resL.json()).lotes ?? []);
-  }, []);
+    setLoading(false);
+  }, [router]);
 
-  const carregarUsuarios = useCallback(async () => {
-    const res = await fetch("/api/admin/usuarios");
-    if (res.ok) setUsuarios((await res.json()).usuarios ?? []);
-  }, []);
-
-  useEffect(() => {
-    if (!loading && adminInfo) {
-      carregarDados();
-      if (adminInfo.role === "superadmin") carregarUsuarios();
-    }
-  }, [loading, adminInfo, carregarDados, carregarUsuarios]);
+  useEffect(() => { carregarDados(); }, [carregarDados]);
 
   async function logout() {
     await fetch("/api/admin/auth", { method: "DELETE" });
-    await supabase.auth.signOut();
     router.push("/admin/login");
   }
 
@@ -94,30 +59,6 @@ export default function Admin() {
       body: JSON.stringify({ id, ativo: !ativo }),
     });
     carregarDados();
-  }
-
-  async function criarUsuario(e: React.FormEvent) {
-    e.preventDefault();
-    setErroUsuario("");
-    const res = await fetch("/api/admin/usuarios", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(novoUsuario),
-    });
-    const data = await res.json();
-    if (!res.ok) { setErroUsuario(data.error ?? "Erro ao criar usuário."); return; }
-    setNovoUsuario({ email: "", nome: "", senha: "" });
-    carregarUsuarios();
-  }
-
-  async function removerUsuario(id: string) {
-    if (!confirm("Remover este admin?")) return;
-    await fetch("/api/admin/usuarios", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    });
-    carregarUsuarios();
   }
 
   async function exportarExcel() {
@@ -143,7 +84,7 @@ export default function Admin() {
   const totalM = ingressos.filter((i) => i.sexo === "M" && i.status === "pago").length;
   const receita = ingressos.filter((i) => i.status === "pago").reduce((acc, i) => acc + i.preco, 0);
 
-  const abas = ["ingressos", "cupons", "lotes", ...(adminInfo?.role === "superadmin" ? ["usuarios"] : [])] as const;
+  const abas = ["ingressos", "cupons", "lotes"] as const;
 
   return (
     <main className="min-h-screen bg-black text-white px-4 py-12">
@@ -154,9 +95,7 @@ export default function Admin() {
             <h1 className="text-3xl font-bold tracking-tighter">
               CHAPTER <span className="text-zinc-600 text-lg font-normal">Admin</span>
             </h1>
-            <p className="text-zinc-600 text-xs mt-1">
-              {adminInfo?.nome} · <span className="text-zinc-700">{adminInfo?.role}</span>
-            </p>
+            <p className="text-zinc-600 text-xs mt-1">Painel de controle</p>
           </div>
           <div className="flex gap-3">
             <button onClick={exportarExcel} disabled={loadingExport}
@@ -308,64 +247,6 @@ export default function Admin() {
           </table>
         )}
 
-        {/* Usuários — só superadmin */}
-        {aba === "usuarios" && adminInfo?.role === "superadmin" && (
-          <div className="flex flex-col gap-6">
-            <form onSubmit={criarUsuario} className="flex flex-col gap-3">
-              <p className="text-xs tracking-widest uppercase text-zinc-500 border-b border-zinc-900 pb-2">Novo admin</p>
-              <div className="flex gap-3">
-                <input type="text" required placeholder="Nome" value={novoUsuario.nome}
-                  onChange={(e) => setNovoUsuario({ ...novoUsuario, nome: e.target.value })}
-                  className="bg-transparent border border-zinc-800 px-4 py-2 text-white text-sm focus:outline-none focus:border-zinc-500 flex-1"
-                />
-                <input type="email" required placeholder="Email" value={novoUsuario.email}
-                  onChange={(e) => setNovoUsuario({ ...novoUsuario, email: e.target.value })}
-                  className="bg-transparent border border-zinc-800 px-4 py-2 text-white text-sm focus:outline-none focus:border-zinc-500 flex-1"
-                />
-                <input type="password" required placeholder="Senha" value={novoUsuario.senha}
-                  onChange={(e) => setNovoUsuario({ ...novoUsuario, senha: e.target.value })}
-                  className="bg-transparent border border-zinc-800 px-4 py-2 text-white text-sm focus:outline-none focus:border-zinc-500 w-36"
-                />
-                <button type="submit" className="px-4 py-2 border border-white text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all">
-                  Criar
-                </button>
-              </div>
-              {erroUsuario && <p className="text-red-500 text-xs">{erroUsuario}</p>}
-            </form>
-
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-zinc-600 text-xs tracking-widest uppercase border-b border-zinc-900">
-                  <th className="text-left py-2 pr-4">Nome</th>
-                  <th className="text-left py-2 pr-4">Email</th>
-                  <th className="text-left py-2 pr-4">Role</th>
-                  <th className="text-left py-2">Ação</th>
-                </tr>
-              </thead>
-              <tbody>
-                {usuarios.map((u) => (
-                  <tr key={u.id} className="border-b border-zinc-900">
-                    <td className="py-2 pr-4">{u.nome}</td>
-                    <td className="py-2 pr-4 text-zinc-500 text-xs">{u.email}</td>
-                    <td className="py-2 pr-4">
-                      <span className={`text-xs ${u.role === "superadmin" ? "text-yellow-400" : "text-zinc-400"}`}>
-                        {u.role}
-                      </span>
-                    </td>
-                    <td className="py-2">
-                      {u.role !== "superadmin" && (
-                        <button onClick={() => removerUsuario(u.id)}
-                          className="text-xs text-zinc-600 hover:text-red-400 transition-colors">
-                          Remover
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
       </div>
     </main>
   );

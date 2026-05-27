@@ -1,21 +1,21 @@
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 
-const VAGAS_TOTAL = 200;
-
-async function getVagasRestantes() {
-  const { data } = await supabase
-    .from("pedidos")
-    .select("quantidade")
-    .neq("status", "cancelado");
-
-  const usadas = data?.reduce((acc, p) => acc + p.quantidade, 0) ?? 0;
-  return Math.max(0, VAGAS_TOTAL - usadas);
+async function getLoteAtivo() {
+  const { data } = await supabaseAdmin
+    .from("lotes")
+    .select("preco_f, preco_m, vendidos_f, vendidos_m, limite_f, limite_m")
+    .eq("ativo", true)
+    .single();
+  return data;
 }
 
 export default async function Home() {
-  const vagas = await getVagasRestantes();
-  const esgotado = vagas === 0;
+  const lote = await getLoteAtivo();
+  const vagasF = lote ? lote.limite_f - lote.vendidos_f : 0;
+  const vagasM = lote ? lote.limite_m - lote.vendidos_m : 0;
+  const vagasTotal = vagasF + vagasM;
+  const esgotado = !lote || vagasTotal <= 0;
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -28,34 +28,50 @@ export default async function Home() {
             CHAPTER
           </h1>
           <p className="text-zinc-400 text-sm tracking-widest uppercase">Lago Sul · QI 11 Conjunto 10</p>
-          <div className="mt-8 flex flex-col items-center gap-2">
-            <p className="text-zinc-500 text-xs tracking-widest uppercase">Ingresso</p>
-            <p className="text-4xl font-light">R$ 35</p>
-          </div>
 
-          {/* Contador de vagas */}
+          {lote && (
+            <div className="mt-6 flex flex-col items-center gap-1">
+              <p className="text-zinc-500 text-xs tracking-widest uppercase">Ingresso</p>
+              <div className="flex gap-6 mt-1">
+                <div>
+                  <p className="text-zinc-600 text-xs">Feminino</p>
+                  <p className="text-2xl font-light">R$ {lote.preco_f}</p>
+                </div>
+                <div className="w-px bg-zinc-800" />
+                <div>
+                  <p className="text-zinc-600 text-xs">Masculino</p>
+                  <p className="text-2xl font-light">R$ {lote.preco_m}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-col items-center gap-1">
             {esgotado ? (
               <p className="text-red-500 text-xs tracking-widest uppercase">Esgotado</p>
             ) : (
               <p className="text-zinc-500 text-xs tracking-widest">
-                <span className={vagas <= 20 ? "text-red-400" : "text-zinc-300"}>{vagas}</span>
+                <span className={vagasTotal <= 20 ? "text-red-400" : "text-zinc-300"}>{vagasTotal}</span>
                 {" "}vagas restantes
               </p>
             )}
           </div>
 
           {esgotado ? (
-            <span className="mt-6 px-10 py-3 border border-zinc-700 text-sm tracking-widest uppercase text-zinc-600 cursor-not-allowed">
+            <span className="mt-4 px-10 py-3 border border-zinc-700 text-sm tracking-widest uppercase text-zinc-600 cursor-not-allowed">
               Esgotado
             </span>
           ) : (
-            <Link
-              href="/comprar"
-              className="mt-6 px-10 py-3 border border-white text-sm tracking-widest uppercase hover:bg-white hover:text-black transition-all duration-300"
-            >
-              Garantir vaga
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-3 mt-4">
+              <Link href="/comprar"
+                className="px-10 py-3 border border-white text-sm tracking-widest uppercase hover:bg-white hover:text-black transition-all duration-300">
+                Comprar ingresso
+              </Link>
+              <Link href="/grupo"
+                className="px-10 py-3 border border-zinc-600 text-sm tracking-widest uppercase text-zinc-400 hover:border-white hover:text-white transition-all duration-300">
+                Ingresso em grupo
+              </Link>
+            </div>
           )}
         </div>
       </section>
@@ -74,20 +90,17 @@ export default async function Home() {
           </div>
           <div>
             <p className="text-zinc-600 text-xs tracking-widest uppercase mb-2">Ingresso</p>
-            <p className="text-white">R$ 35,00</p>
+            <p className="text-white">F R$ {lote?.preco_f ?? 35} · M R$ {lote?.preco_m ?? 45}</p>
             <p className="text-zinc-500 text-sm">InfinitePay</p>
           </div>
         </div>
       </section>
 
-      {/* CTA */}
       {!esgotado && (
         <section className="border-t border-zinc-900 px-4 py-20 flex flex-col items-center gap-6">
           <h2 className="text-3xl font-light tracking-tight">Pronto para a noite?</h2>
-          <Link
-            href="/comprar"
-            className="px-10 py-3 bg-white text-black text-sm tracking-widest uppercase hover:bg-zinc-200 transition-all duration-300"
-          >
+          <Link href="/comprar"
+            className="px-10 py-3 bg-white text-black text-sm tracking-widest uppercase hover:bg-zinc-200 transition-all duration-300">
             Comprar ingresso
           </Link>
         </section>

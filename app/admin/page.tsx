@@ -150,8 +150,10 @@ export default function Admin() {
         setEntradaLiberada(false);
         setQrResultado(null);
       }, 3000);
+    } else if (res.status === 409) {
+      setQrResultado({ ...qrResultado, ja_usado: true, erro: "Ingresso já utilizado." });
     } else {
-      setQrResultado({ ...qrResultado, erro: data.error ?? "Erro ao validar." });
+      setQrResultado({ ...qrResultado, ja_usado: false, erro: data.error ?? "Erro ao validar." });
     }
     setQrValidando(false);
   }

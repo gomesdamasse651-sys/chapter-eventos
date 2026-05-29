@@ -145,6 +145,11 @@ export default function Admin() {
     const data = await res.json();
     if (res.ok) {
       setEntradaLiberada(true);
+      setQrInput("");
+      setTimeout(() => {
+        setEntradaLiberada(false);
+        setQrResultado(null);
+      }, 3000);
     } else {
       setQrResultado({ ...qrResultado, erro: data.error ?? "Erro ao validar." });
     }

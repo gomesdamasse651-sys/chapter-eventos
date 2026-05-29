@@ -41,10 +41,10 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM }: Pr
           <span
             style={{
               color: "transparent",
-              WebkitTextStroke: "1.5px white",
+              WebkitTextStroke: "1.5px rgba(255,255,255,0.5)",
             }}
           >
-            T
+            H
           </span>
           <span className="text-white">APTER</span>
         </motion.h1>
@@ -86,15 +86,6 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM }: Pr
               {esgotado ? "Esgotado" : vagasTotal}
             </p>
           </div>
-          {precoF && precoM && (
-            <>
-              <div className="w-px h-8 bg-zinc-800" />
-              <div className="text-center">
-                <p className="text-zinc-600 text-[10px] tracking-widest uppercase mb-1">Ingresso</p>
-                <p className="text-white text-sm">F R${precoF} · M R${precoM}</p>
-              </div>
-            </>
-          )}
         </motion.div>
 
         {/* CTA */}

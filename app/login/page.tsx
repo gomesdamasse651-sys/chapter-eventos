@@ -17,6 +17,7 @@ function LoginForm() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [emailAdmin, setEmailAdmin] = useState("");
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
   const [loading, setLoading] = useState(false);
@@ -42,10 +43,16 @@ function LoginForm() {
     }
 
     const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
-    if (error) { setErro("Email ou senha incorretos."); setLoading(false); return; }
+    if (error) {
+      console.error("[login cliente] signInWithPassword error:", error.message, error);
+      setErro("Email ou senha incorretos.");
+      setLoading(false);
+      return;
+    }
     const redirect = searchParams.get("redirect") ?? "/dashboard";
     router.push(redirect);
     router.refresh();
+    setLoading(false);
   }
 
   async function handleAdmin(e: React.FormEvent) {
@@ -56,14 +63,15 @@ function LoginForm() {
     const res = await fetch("/api/admin/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ senha }),
+      body: JSON.stringify({ email: emailAdmin, senha }),
     });
 
     if (res.ok) {
       router.push("/admin");
       router.refresh();
     } else {
-      setErro("Senha incorreta.");
+      const json = await res.json().catch(() => ({}));
+      setErro(json.error ?? "Credenciais inválidas.");
       setLoading(false);
     }
   }
@@ -131,10 +139,16 @@ function LoginForm() {
         {aba === "admin" && (
           <form onSubmit={handleAdmin} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
+              <label className="text-xs tracking-widest uppercase text-zinc-500">Email</label>
+              <input type="email" required value={emailAdmin} onChange={(e) => setEmailAdmin(e.target.value)}
+                className="bg-transparent border border-zinc-800 px-4 py-3 text-white focus:outline-none focus:border-zinc-500 transition-colors"
+                placeholder="seu@email.com" autoFocus />
+            </div>
+            <div className="flex flex-col gap-1">
               <label className="text-xs tracking-widest uppercase text-zinc-500">Senha</label>
               <input type="password" required value={senha} onChange={(e) => setSenha(e.target.value)}
                 className="bg-transparent border border-zinc-800 px-4 py-3 text-white focus:outline-none focus:border-zinc-500 transition-colors"
-                placeholder="••••••••" autoFocus />
+                placeholder="••••••••" />
             </div>
 
             {erro && <p className="text-red-500 text-xs text-center">{erro}</p>}

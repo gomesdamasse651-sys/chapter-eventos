@@ -8,16 +8,10 @@ export async function GET(req: NextRequest) {
   const qr = req.nextUrl.searchParams.get("qr");
   if (!qr) return NextResponse.json({ error: "QR code não informado." }, { status: 400 });
 
-  console.log("[validar GET] qr recebido:", qr);
-  console.log("[validar GET] url:", process.env.NEXT_PUBLIC_SUPABASE_URL?.slice(0, 30));
-  console.log("[validar GET] key:", process.env.SUPABASE_SERVICE_KEY?.slice(0, 20));
-
   const { data: rows, error } = await supabaseAdmin
     .from("ingressos")
     .select("id, nome, sexo, status, usado, lotes(numero)")
     .eq("qr_code", qr);
-
-  console.log("[validar GET] resultado bruto:", JSON.stringify({ rows, error }));
 
   const data = rows && rows.length > 0 ? rows[0] : null;
   if (!data) return NextResponse.json({ valido: false, erro: "Código inválido.", supabase_error: error?.message, rows_count: rows?.length ?? 0 });
@@ -42,15 +36,10 @@ export async function POST(req: NextRequest) {
   const { qr } = await req.json();
   if (!qr) return NextResponse.json({ error: "QR code não informado." }, { status: 400 });
 
-  console.log("[validar POST] qr recebido:", qr);
-  console.log("[validar POST] query: SELECT FROM ingressos WHERE qr_code =", qr);
-
   const { data: rows2, error: erroBusca } = await supabaseAdmin
     .from("ingressos")
     .select("id, status, usado")
     .eq("qr_code", qr);
-
-  console.log("[validar POST] resultado bruto:", JSON.stringify({ rows2, erroBusca }));
 
   const ingresso = rows2 && rows2.length > 0 ? rows2[0] : null;
   if (!ingresso) return NextResponse.json({ error: "QR code não encontrado.", supabase_error: erroBusca?.message, rows_count: rows2?.length ?? 0 }, { status: 404 });

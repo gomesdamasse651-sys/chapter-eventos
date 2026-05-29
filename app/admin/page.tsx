@@ -143,17 +143,20 @@ export default function Admin() {
       body: JSON.stringify({ qr: uuid }),
     });
     const data = await res.json();
+    if (res.status === 409) {
+      setQrResultado({ valido: false, ja_usado: true, nome: qrResultado?.nome, erro: "Ingresso já utilizado." });
+      setQrValidando(false);
+      return;
+    }
+
     if (res.ok) {
       setEntradaLiberada(true);
       setQrInput("");
       setTimeout(() => {
         setEntradaLiberada(false);
         setQrResultado(null);
+        setQrInput("");
       }, 3000);
-    } else if (res.status === 409) {
-      setQrResultado({ ...qrResultado, ja_usado: true, erro: "Ingresso já utilizado." });
-    } else {
-      setQrResultado({ ...qrResultado, ja_usado: false, erro: data.error ?? "Erro ao validar." });
     }
     setQrValidando(false);
   }

@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   const lote = (data.lotes as unknown as { numero: number } | null)?.numero;
 
   if (data.usado || data.status === "usado") {
-    return NextResponse.json({ valido: false, usado: true, id: data.id, nome: data.nome, sexo: data.sexo, lote, erro: "Ingresso já utilizado." });
+    return NextResponse.json({ valido: false, ja_usado: true, id: data.id, nome: data.nome, sexo: data.sexo, lote, erro: "Ingresso já utilizado." });
   }
   if (data.status === "pendente") {
     return NextResponse.json({ valido: false, usado: false, id: data.id, nome: data.nome, sexo: data.sexo, lote, erro: "Pagamento não confirmado." });

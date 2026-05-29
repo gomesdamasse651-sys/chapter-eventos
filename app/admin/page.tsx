@@ -34,7 +34,7 @@ export default function Admin() {
   const [filtroSexo, setFiltroSexo] = useState("");
   const [busca, setBusca] = useState("");
   const [qrInput, setQrInput] = useState("");
-  const [qrResultado, setQrResultado] = useState<{ valido?: boolean; usado?: boolean; nome?: string; sexo?: string; lote?: number; erro?: string } | null>(null);
+  const [qrResultado, setQrResultado] = useState<{ valido?: boolean; usado?: boolean; ja_usado?: boolean; nome?: string; sexo?: string; lote?: number; erro?: string } | null>(null);
   const [qrValidando, setQrValidando] = useState(false);
   const [entradaLiberada, setEntradaLiberada] = useState(false);
   const [sidebarAberta, setSidebarAberta] = useState(false);
@@ -541,7 +541,7 @@ export default function Admin() {
             {qrResultado && (
               <div className={`border p-6 flex flex-col gap-4 ${
                 entradaLiberada ? "border-green-600" :
-                qrResultado.usado ? "border-zinc-700" :
+                qrResultado.ja_usado ? "border-red-800" :
                 qrResultado.valido ? "border-green-700" : "border-red-800"
               }`}>
                 {entradaLiberada ? (
@@ -550,12 +550,11 @@ export default function Admin() {
                     <p className="text-white text-lg mt-2">{qrResultado.nome}</p>
                     <p className="text-zinc-500 text-sm">{qrResultado.sexo === "F" ? "Feminino" : "Masculino"} · Lote {qrResultado.lote}</p>
                   </div>
-                ) : qrResultado.usado ? (
+                ) : qrResultado.ja_usado ? (
                   <div className="text-center">
-                    <p className="text-yellow-400 text-2xl font-bold">⚠ JÁ UTILIZADO</p>
-                    <p className="text-white mt-2">{qrResultado.nome}</p>
-                    <p className="text-zinc-500 text-sm">{qrResultado.sexo === "F" ? "Feminino" : "Masculino"} · Lote {qrResultado.lote}</p>
-                    <p className="text-red-400 text-sm mt-2">Ingresso já utilizado.</p>
+                    <p className="text-red-400 text-2xl font-bold">✗ INGRESSO JÁ UTILIZADO</p>
+                    <p className="text-white mt-3">{qrResultado.nome}</p>
+                    <p className="text-zinc-500 text-sm mt-1">{qrResultado.sexo === "F" ? "Feminino" : "Masculino"} · Lote {qrResultado.lote}</p>
                   </div>
                 ) : qrResultado.valido ? (
                   <>

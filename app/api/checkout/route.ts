@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 const PRECO_SEGURO = 11.9;
 
 export async function POST(req: NextRequest) {
-  const { nome, email, telefone, quantidade, sexo, cupom_id, seguro, lote_id } = await req.json();
+  const { nome, email, telefone, quantidade, sexo, cupom_id, cupom_desconto, seguro, lote_id } = await req.json();
 
   if (!sexo || !["F", "M"].includes(sexo)) {
     return NextResponse.json({ error: "Sexo inválido." }, { status: 400 });
@@ -34,7 +34,10 @@ export async function POST(req: NextRequest) {
 
   const preco = sexo === "F" ? lote.preco_f : lote.preco_m;
   let subtotal = preco * quantidade;
-  if (cupom_id) subtotal = subtotal - Math.round(subtotal * 0.1 * 100) / 100;
+  if (cupom_id) {
+    const pct = (cupom_desconto ?? 10) / 100;
+    subtotal = subtotal - Math.round(subtotal * pct * 100) / 100;
+  }
   const seguroTotal = seguro ? PRECO_SEGURO * quantidade : 0;
   const total = subtotal + seguroTotal;
 

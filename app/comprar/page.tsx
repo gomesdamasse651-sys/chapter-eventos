@@ -50,7 +50,7 @@ export default function Comprar() {
     const res = await fetch(`/api/cupom?codigo=${encodeURIComponent(cupom.trim())}`);
     const data = await res.json();
     if (res.ok && data.valido) {
-      setCupomValido({ id: data.id, desconto: 0.1 });
+      setCupomValido({ id: data.id, desconto: (data.desconto ?? 10) / 100 });
     } else {
       setCupomErro(data.erro ?? "Cupom inválido.");
     }
@@ -70,6 +70,7 @@ export default function Comprar() {
         body: JSON.stringify({
           nome, email, telefone, quantidade, sexo,
           cupom_id: cupomValido?.id ?? null,
+          cupom_desconto: cupomValido ? Math.round(cupomValido.desconto * 100) : null,
           seguro,
           lote_id: lote?.id,
         }),

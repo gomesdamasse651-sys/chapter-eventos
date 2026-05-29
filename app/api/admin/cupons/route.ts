@@ -15,10 +15,10 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   if (!checkAdminAuth(req)) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
 
-  const { codigo, criado_por } = await req.json();
+  const { codigo, criado_por, desconto } = await req.json();
   const { data, error } = await supabaseAdmin
     .from("cupons")
-    .insert({ codigo: codigo.toUpperCase().trim(), criado_por, usos: 0, ativo: true })
+    .insert({ codigo: codigo.toUpperCase().trim(), criado_por, usos: 0, ativo: true, desconto: desconto ?? 10 })
     .select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

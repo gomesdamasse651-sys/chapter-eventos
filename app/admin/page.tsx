@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import dynamic from "next/dynamic";
 
 const QrScanner = dynamic(() => import("@/components/QrScanner"), { ssr: false });
@@ -13,7 +13,7 @@ type Ingresso = {
   usado: boolean;
   lotes: { numero: number } | null; cupons: { codigo: string } | null;
 };
-type Cupom = { id: string; codigo: string; criado_por: string; usos: number; ativo: boolean };
+type Cupom = { id: string; codigo: string; criado_por: string; usos: number; ativo: boolean; desconto: number };
 type Lote = { numero: number; preco_f: number; preco_m: number; vendidos_f: number; vendidos_m: number; limite_f: number; limite_m: number; ativo: boolean };
 type AdminUser = { id: string; nome: string; email: string; criado_em: string };
 
@@ -27,7 +27,7 @@ export default function Admin() {
   const [cupons, setCupons] = useState<Cupom[]>([]);
   const [lotes, setLotes] = useState<Lote[]>([]);
   const [admins, setAdmins] = useState<AdminUser[]>([]);
-  const [novoCupom, setNovoCupom] = useState({ codigo: "", criado_por: "" });
+  const [novoCupom, setNovoCupom] = useState({ codigo: "", criado_por: "", desconto: 10 });
   const [novoAdmin, setNovoAdmin] = useState({ nome: "", email: "" });
   const [loadingExport, setLoadingExport] = useState(false);
   const [filtroStatus, setFiltroStatus] = useState("");
@@ -66,7 +66,7 @@ export default function Admin() {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify(novoCupom),
     });
-    setNovoCupom({ codigo: "", criado_por: "" });
+    setNovoCupom({ codigo: "", criado_por: "", desconto: 10 });
     carregarDados();
   }
 
@@ -253,6 +253,35 @@ export default function Admin() {
               ))}
             </div>
 
+            {(totalF > 0 || totalM > 0) && (
+              <div className="border border-zinc-900 p-6 flex flex-col md:flex-row items-center gap-6">
+                <div>
+                  <p className="text-xs tracking-widest uppercase text-zinc-500 mb-4">F vs M</p>
+                  <PieChart width={140} height={140}>
+                    <Pie data={[{ name: "F", value: totalF }, { name: "M", value: totalM }]} cx={65} cy={65} innerRadius={40} outerRadius={60} dataKey="value" strokeWidth={0}>
+                      <Cell fill="#ffffff" />
+                      <Cell fill="#3f3f46" />
+                    </Pie>
+                    <Tooltip contentStyle={{ background: "#09090b", border: "1px solid #27272a", color: "#fff", fontSize: 12 }} />
+                  </PieChart>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center gap-3">
+                    <span className="w-3 h-3 rounded-full bg-white shrink-0" />
+                    <span className="text-sm text-zinc-300">Feminino</span>
+                    <span className="ml-auto text-white font-medium">{totalF}</span>
+                    <span className="text-zinc-600 text-xs">{totalPagos > 0 ? Math.round((totalF / totalPagos) * 100) : 0}%</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="w-3 h-3 rounded-full bg-zinc-600 shrink-0" />
+                    <span className="text-sm text-zinc-300">Masculino</span>
+                    <span className="ml-auto text-white font-medium">{totalM}</span>
+                    <span className="text-zinc-600 text-xs">{totalPagos > 0 ? Math.round((totalM / totalPagos) * 100) : 0}%</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {chartData.length > 0 && (
               <div className="border border-zinc-900 p-6">
                 <p className="text-xs tracking-widest uppercase text-zinc-500 mb-4">Vendas por dia</p>
@@ -378,6 +407,13 @@ export default function Admin() {
                 onChange={(e) => setNovoCupom({ ...novoCupom, criado_por: e.target.value })}
                 className="bg-transparent border border-zinc-800 px-4 py-2 text-white text-sm focus:outline-none focus:border-zinc-500 flex-1 min-w-40"
               />
+              <div className="flex items-center border border-zinc-800 px-4 py-2 gap-2 w-28">
+                <input type="number" required min={1} max={100} value={novoCupom.desconto}
+                  onChange={(e) => setNovoCupom({ ...novoCupom, desconto: Number(e.target.value) })}
+                  className="bg-transparent text-white text-sm focus:outline-none w-full"
+                />
+                <span className="text-zinc-500 text-sm">%</span>
+              </div>
               <button type="submit" className="px-4 py-2 border border-white text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all">
                 Criar
               </button>
@@ -387,6 +423,7 @@ export default function Admin() {
                 <tr className="text-zinc-600 text-xs tracking-widest uppercase border-b border-zinc-900">
                   <th className="text-left py-2 pr-4">Código</th>
                   <th className="text-left py-2 pr-4">Criado por</th>
+                  <th className="text-left py-2 pr-4">Desconto</th>
                   <th className="text-left py-2 pr-4">Usos</th>
                   <th className="text-left py-2">Status</th>
                 </tr>
@@ -396,6 +433,7 @@ export default function Admin() {
                   <tr key={c.id} className="border-b border-zinc-900">
                     <td className="py-2 pr-4 font-mono">{c.codigo}</td>
                     <td className="py-2 pr-4 text-zinc-500">{c.criado_por}</td>
+                    <td className="py-2 pr-4 text-zinc-300">{c.desconto ?? 10}%</td>
                     <td className="py-2 pr-4">{c.usos}</td>
                     <td className="py-2">
                       <button onClick={() => toggleCupom(c.id, c.ativo)}

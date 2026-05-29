@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabaseAdmin
     .from("cupons")
-    .select("id, codigo, ativo")
+    .select("id, codigo, ativo, desconto")
     .eq("codigo", codigo.toUpperCase())
     .eq("ativo", true)
     .single();
@@ -19,5 +19,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ valido: false, erro: "Cupom não encontrado ou inativo." }, { status: 404 });
   }
 
-  return NextResponse.json({ valido: true, id: data.id });
+  return NextResponse.json({ valido: true, id: data.id, desconto: data.desconto ?? 10 });
 }

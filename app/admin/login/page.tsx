@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function AdminLogin() {
+  const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,14 +18,15 @@ export default function AdminLogin() {
     const res = await fetch("/api/admin/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ senha }),
+      body: JSON.stringify({ email, senha }),
     });
 
     if (res.ok) {
       router.push("/admin");
       router.refresh();
     } else {
-      setErro("Senha incorreta.");
+      const json = await res.json().catch(() => ({}));
+      setErro(json.error ?? "Credenciais inválidas.");
       setLoading(false);
     }
   }
@@ -38,13 +40,23 @@ export default function AdminLogin() {
         </div>
 
         <div className="flex flex-col gap-1">
+          <label className="text-xs tracking-widest uppercase text-zinc-500">Email</label>
+          <input
+            type="email" required value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="bg-transparent border border-zinc-800 px-4 py-3 text-white focus:outline-none focus:border-zinc-500 transition-colors"
+            placeholder="seu@email.com"
+            autoFocus
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
           <label className="text-xs tracking-widest uppercase text-zinc-500">Senha</label>
           <input
             type="password" required value={senha}
             onChange={(e) => setSenha(e.target.value)}
             className="bg-transparent border border-zinc-800 px-4 py-3 text-white focus:outline-none focus:border-zinc-500 transition-colors"
             placeholder="••••••••"
-            autoFocus
           />
         </div>
 

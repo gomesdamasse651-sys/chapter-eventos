@@ -37,16 +37,16 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM }: Pr
           className="font-[family-name:var(--font-playfair)] leading-none select-none"
           style={{ fontSize: "clamp(5rem,16vw,9rem)" }}
         >
-          <span className="text-white">C</span>
+          <span className="text-white">CHAP</span>
           <span
             style={{
               color: "transparent",
               WebkitTextStroke: "1.5px rgba(255,255,255,0.5)",
             }}
           >
-            H
+            T
           </span>
-          <span className="text-white">APTER</span>
+          <span className="text-white">ER</span>
         </motion.h1>
 
         {/* Subtitle */}

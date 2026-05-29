@@ -6,9 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
 
-const supabase = createSupabaseBrowserClient();
-
 function LoginForm() {
+  const supabase = createSupabaseBrowserClient();
   const [aba, setAba] = useState<"cliente" | "admin">("cliente");
   const [modo, setModo] = useState<"login" | "cadastro">("login");
   const [nome, setNome] = useState("");

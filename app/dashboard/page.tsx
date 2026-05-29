@@ -5,8 +5,6 @@ import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-const supabase = createSupabaseBrowserClient();
-
 type Ingresso = {
   id: string; nome: string; sexo: string; status: string;
   qr_code: string | null; preco: number; seguro: boolean;
@@ -14,6 +12,7 @@ type Ingresso = {
 };
 
 export default function Dashboard() {
+  const supabase = createSupabaseBrowserClient();
   const [ingressos, setIngressos] = useState<Ingresso[]>([]);
   const [loading, setLoading] = useState(true);
   const [nomeUsuario, setNomeUsuario] = useState("");

@@ -364,7 +364,8 @@ export default function Admin() {
                     <th className="text-left py-2 pr-3">Cupom</th>
                     <th className="text-left py-2 pr-3">Seg.</th>
                     <th className="text-left py-2 pr-3">Status</th>
-                    <th className="text-left py-2">Data</th>
+                    <th className="text-left py-2 pr-3">Data</th>
+                    <th className="text-left py-2">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -382,8 +383,22 @@ export default function Admin() {
                           {i.usado ? "usado" : i.status}
                         </span>
                       </td>
-                      <td className="py-2 text-zinc-600 text-xs">
+                      <td className="py-2 pr-3 text-zinc-600 text-xs">
                         {i.paid_at ? new Date(i.paid_at).toLocaleDateString("pt-BR") : "—"}
+                      </td>
+                      <td className="py-2">
+                        <button
+                          onClick={async () => {
+                            if (!confirm("Tem certeza que deseja remover este ingresso?")) return;
+                            await fetch(`/api/admin/ingressos?id=${i.id}`, { method: "DELETE" });
+                            setIngressos((prev) => prev.filter((x) => x.id !== i.id));
+                          }}
+                          className="text-xs px-2 py-1 transition-colors hover:opacity-100"
+                          style={{ color: "rgba(255,0,0,0.7)" }}
+                          title="Remover ingresso"
+                        >
+                          ×
+                        </button>
                       </td>
                     </tr>
                   ))}

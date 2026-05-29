@@ -36,6 +36,7 @@ export default function Admin() {
   const [qrInput, setQrInput] = useState("");
   const [qrResultado, setQrResultado] = useState<{ valido?: boolean; usado?: boolean; nome?: string; sexo?: string; lote?: number; erro?: string } | null>(null);
   const [qrValidando, setQrValidando] = useState(false);
+  const [entradaLiberada, setEntradaLiberada] = useState(false);
   const [sidebarAberta, setSidebarAberta] = useState(false);
 
   const carregarDados = useCallback(async () => {
@@ -119,6 +120,7 @@ export default function Admin() {
   async function buscarQr(qr: string) {
     if (!qr.trim()) return;
     setQrValidando(true);
+    setEntradaLiberada(false);
     const uuid = extrairUuid(qr);
     console.log("[validador] valor bruto:", qr);
     console.log("[validador] UUID extraído:", uuid);
@@ -142,10 +144,9 @@ export default function Admin() {
     });
     const data = await res.json();
     if (res.ok) {
-      setQrResultado({ valido: true, usado: false, ...qrResultado });
-      buscarQr(qrInput);
+      setEntradaLiberada(true);
     } else {
-      setQrResultado({ erro: data.error });
+      setQrResultado({ ...qrResultado, erro: data.error ?? "Erro ao validar." });
     }
     setQrValidando(false);
   }
@@ -519,7 +520,7 @@ export default function Admin() {
                 type="text"
                 placeholder="Digite ou escaneie o QR code"
                 value={qrInput}
-                onChange={(e) => { setQrInput(e.target.value); setQrResultado(null); }}
+                onChange={(e) => { setQrInput(e.target.value); setQrResultado(null); setEntradaLiberada(false); }}
                 onKeyDown={(e) => e.key === "Enter" && buscarQr(qrInput)}
                 className="flex-1 bg-transparent border border-zinc-800 px-4 py-3 text-white focus:outline-none focus:border-zinc-500 font-mono text-sm"
                 autoFocus
@@ -539,22 +540,24 @@ export default function Admin() {
 
             {qrResultado && (
               <div className={`border p-6 flex flex-col gap-4 ${
-                qrResultado.erro ? "border-red-800" :
+                entradaLiberada ? "border-green-600" :
                 qrResultado.usado ? "border-zinc-700" :
                 qrResultado.valido ? "border-green-700" : "border-red-800"
               }`}>
-                {qrResultado.erro ? (
+                {entradaLiberada ? (
                   <div className="text-center">
-                    <p className="text-red-400 text-2xl font-bold">✗ INVÁLIDO</p>
-                    <p className="text-zinc-500 text-sm mt-2">{qrResultado.erro}</p>
+                    <p className="text-green-400 text-2xl font-bold">✓ ENTRADA LIBERADA</p>
+                    <p className="text-white text-lg mt-2">{qrResultado.nome}</p>
+                    <p className="text-zinc-500 text-sm">{qrResultado.sexo === "F" ? "Feminino" : "Masculino"} · Lote {qrResultado.lote}</p>
                   </div>
                 ) : qrResultado.usado ? (
                   <div className="text-center">
-                    <p className="text-zinc-400 text-2xl font-bold">⚠ JÁ USADO</p>
+                    <p className="text-yellow-400 text-2xl font-bold">⚠ JÁ UTILIZADO</p>
                     <p className="text-white mt-2">{qrResultado.nome}</p>
                     <p className="text-zinc-500 text-sm">{qrResultado.sexo === "F" ? "Feminino" : "Masculino"} · Lote {qrResultado.lote}</p>
+                    <p className="text-red-400 text-sm mt-2">Ingresso já utilizado.</p>
                   </div>
-                ) : (
+                ) : qrResultado.valido ? (
                   <>
                     <div className="text-center">
                       <p className="text-green-400 text-2xl font-bold">✓ VÁLIDO</p>
@@ -566,6 +569,11 @@ export default function Admin() {
                       {qrValidando ? "Validando..." : "VALIDAR ENTRADA"}
                     </button>
                   </>
+                ) : (
+                  <div className="text-center">
+                    <p className="text-red-400 text-2xl font-bold">✗ INVÁLIDO</p>
+                    <p className="text-zinc-500 text-sm mt-2">{qrResultado.erro}</p>
+                  </div>
                 )}
               </div>
             )}

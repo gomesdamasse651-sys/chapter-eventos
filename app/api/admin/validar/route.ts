@@ -20,17 +20,20 @@ export async function GET(req: NextRequest) {
   console.log("[validar GET] resultado bruto:", JSON.stringify({ rows, error }));
 
   const data = rows && rows.length > 0 ? rows[0] : null;
-  if (!data) return NextResponse.json({ valido: false, erro: "QR code não encontrado.", supabase_error: error?.message, rows_count: rows?.length ?? 0 });
+  if (!data) return NextResponse.json({ valido: false, erro: "Código inválido.", supabase_error: error?.message, rows_count: rows?.length ?? 0 });
 
-  return NextResponse.json({
-    valido: data.status === "pago",
-    usado: data.usado,
-    id: data.id,
-    nome: data.nome,
-    sexo: data.sexo,
-    status: data.status,
-    lote: (data.lotes as unknown as { numero: number } | null)?.numero,
-  });
+  const lote = (data.lotes as unknown as { numero: number } | null)?.numero;
+
+  if (data.usado || data.status === "usado") {
+    return NextResponse.json({ valido: false, usado: true, id: data.id, nome: data.nome, sexo: data.sexo, lote, erro: "Ingresso já utilizado." });
+  }
+  if (data.status === "pendente") {
+    return NextResponse.json({ valido: false, usado: false, id: data.id, nome: data.nome, sexo: data.sexo, lote, erro: "Pagamento não confirmado." });
+  }
+  if (data.status === "pago") {
+    return NextResponse.json({ valido: true, usado: false, id: data.id, nome: data.nome, sexo: data.sexo, lote, status: data.status });
+  }
+  return NextResponse.json({ valido: false, usado: false, id: data.id, nome: data.nome, sexo: data.sexo, lote, erro: `Status: ${data.status}` });
 }
 
 export async function POST(req: NextRequest) {

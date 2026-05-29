@@ -23,13 +23,20 @@ export default function Dashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) { router.push("/login"); return; }
-      setNomeUsuario(session.user.user_metadata?.nome ?? session.user.email ?? "");
-      fetch("/api/cliente/ingressos")
-        .then((r) => r.json())
-        .then((d) => { setIngressos(d.ingressos ?? []); setLoading(false); });
+    // onAuthStateChange é mais confiável que getSession após redirect
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("[dashboard] auth event:", event, "session:", !!session);
+      if (event === "INITIAL_SESSION" || event === "SIGNED_IN") {
+        if (!session) { router.push("/login"); return; }
+        setNomeUsuario(session.user.user_metadata?.nome ?? session.user.email ?? "");
+        fetch("/api/cliente/ingressos")
+          .then((r) => r.json())
+          .then((d) => { setIngressos(d.ingressos ?? []); setLoading(false); });
+      } else if (event === "SIGNED_OUT") {
+        router.push("/login");
+      }
     });
+    return () => subscription.unsubscribe();
   }, [router]);
 
   async function logout() {

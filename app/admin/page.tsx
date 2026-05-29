@@ -151,12 +151,6 @@ export default function Admin() {
 
     if (res.ok) {
       setEntradaLiberada(true);
-      setQrInput("");
-      setTimeout(() => {
-        setEntradaLiberada(false);
-        setQrResultado(null);
-        setQrInput("");
-      }, 3000);
     }
     setQrValidando(false);
   }
@@ -555,10 +549,16 @@ export default function Admin() {
                 qrResultado.valido ? "border-green-700" : "border-red-800"
               }`}>
                 {entradaLiberada ? (
-                  <div className="text-center">
-                    <p className="text-green-400 text-2xl font-bold">✓ ENTRADA LIBERADA</p>
-                    <p className="text-white text-lg mt-2">{qrResultado.nome}</p>
-                    <p className="text-zinc-500 text-sm">{qrResultado.sexo === "F" ? "Feminino" : "Masculino"} · Lote {qrResultado.lote}</p>
+                  <div className="text-center flex flex-col gap-4">
+                    <div>
+                      <p className="text-green-400 text-2xl font-bold">✓ ENTRADA LIBERADA</p>
+                      <p className="text-white text-lg mt-2">{qrResultado.nome}</p>
+                      <p className="text-zinc-500 text-sm">{qrResultado.sexo === "F" ? "Feminino" : "Masculino"} · Lote {qrResultado.lote}</p>
+                    </div>
+                    <button onClick={() => { setEntradaLiberada(false); setQrResultado(null); setQrInput(""); }}
+                      className="py-2 border border-zinc-700 text-xs tracking-widest uppercase text-zinc-400 hover:border-zinc-500 transition-all">
+                      Novo Scan
+                    </button>
                   </div>
                 ) : qrResultado.ja_usado ? (
                   <div className="text-center">

@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 const PRECO_SEGURO = 11.9;
 
 export async function POST(req: NextRequest) {
-  const { nome, email, telefone, quantidade, sexo, cupom_id, cupom_desconto, seguro, lote_id } = await req.json();
+  const { nome, email, telefone, quantidade, sexo, cupom_id, cupom_desconto, seguro, lote_id, taxa_pct } = await req.json();
 
   if (!sexo || !["F", "M"].includes(sexo)) {
     return NextResponse.json({ error: "Sexo inválido." }, { status: 400 });
@@ -39,7 +39,8 @@ export async function POST(req: NextRequest) {
     subtotal = subtotal - Math.round(subtotal * pct * 100) / 100;
   }
   const seguroTotal = seguro ? PRECO_SEGURO * quantidade : 0;
-  const total = subtotal + seguroTotal;
+  const taxa = taxa_pct ? Math.round(subtotal * (taxa_pct / 100) * 100) / 100 : 0;
+  const total = subtotal + seguroTotal + taxa;
 
   // Cria ingressos pendentes — um UUID por ingresso, usado como order_nsu individual
   const orderNsu = `chapter-${uuidv4()}`;

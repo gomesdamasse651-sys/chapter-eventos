@@ -40,7 +40,9 @@ export default function Comprar() {
   const subtotal = preco * quantidade;
   const desconto = cupomValido ? Math.round(subtotal * cupomValido.desconto) : 0;
   const seguroValor = seguro ? 11.9 * quantidade : 0;
-  const total = subtotal - desconto + seguroValor;
+  const subtotalComDesconto = subtotal - desconto;
+  const taxa = Math.round(subtotalComDesconto * 0.05 * 100) / 100;
+  const total = subtotalComDesconto + seguroValor + taxa;
 
   async function validarCupom() {
     if (!cupom.trim()) return;
@@ -73,6 +75,7 @@ export default function Comprar() {
           cupom_desconto: cupomValido ? Math.round(cupomValido.desconto * 100) : null,
           seguro,
           lote_id: lote?.id,
+          taxa_pct: 5,
         }),
       });
 
@@ -101,7 +104,7 @@ export default function Comprar() {
         <div>
           <p className="text-xs tracking-[0.4em] text-zinc-500 uppercase mb-2">Ingresso</p>
           <h1 className="text-4xl font-bold tracking-tighter">CHAPTER</h1>
-          <p className="text-zinc-500 text-sm mt-1">15 de Junho · Lago Sul</p>
+          <p className="text-zinc-500 text-sm mt-1">01 de Agosto · Lago Sul</p>
           {lote && (
             <p className="text-zinc-600 text-xs mt-1 tracking-widest uppercase">Lote {lote.numero}</p>
           )}
@@ -199,7 +202,7 @@ export default function Comprar() {
                 {loadingCupom ? "..." : "Aplicar"}
               </button>
             </div>
-            {cupomValido && <p className="text-green-500 text-xs">Cupom aplicado! -10%</p>}
+            {cupomValido && <p className="text-green-500 text-xs">Cupom aplicado! -{Math.round(cupomValido.desconto * 100)}%</p>}
             {cupomErro && <p className="text-red-500 text-xs">{cupomErro}</p>}
           </div>
 
@@ -229,7 +232,7 @@ export default function Comprar() {
             </div>
             {desconto > 0 && (
               <div className="flex justify-between text-sm text-green-500">
-                <span>Cupom -10%</span>
+                <span>Cupom -{cupomValido ? Math.round(cupomValido.desconto * 100) : 0}%</span>
                 <span>- R$ {desconto.toFixed(2).replace(".", ",")}</span>
               </div>
             )}
@@ -239,6 +242,10 @@ export default function Comprar() {
                 <span>R$ {seguroValor.toFixed(2).replace(".", ",")}</span>
               </div>
             )}
+            <div className="flex justify-between text-sm text-zinc-500">
+              <span>Taxa de serviço (5%)</span>
+              <span>R$ {taxa.toFixed(2).replace(".", ",")}</span>
+            </div>
             <div className="flex justify-between items-center border-t border-zinc-900 pt-2 mt-1">
               <span className="text-zinc-500 text-sm">Total</span>
               <span className="text-2xl font-light">R$ {total.toFixed(2).replace(".", ",")}</span>

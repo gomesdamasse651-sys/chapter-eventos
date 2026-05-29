@@ -15,7 +15,20 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Chapter — 01 de Agosto",
-  description: "Festa Chapter · Lago Sul · 01/08/2026",
+  description: "Garanta seu ingresso. Lago Sul · Brasília.",
+  openGraph: {
+    title: "CHAPTER — 01 de Agosto",
+    description: "Garanta seu ingresso. Lago Sul · Brasília.",
+    type: "website",
+    locale: "pt_BR",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Chapter — 01 de Agosto" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CHAPTER — 01 de Agosto",
+    description: "Garanta seu ingresso. Lago Sul · Brasília.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({

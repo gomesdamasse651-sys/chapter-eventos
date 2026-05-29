@@ -79,13 +79,6 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM }: Pr
             <p className="text-zinc-600 text-[10px] tracking-widest uppercase mb-1">Local</p>
             <p className="text-white text-sm">Lago Sul</p>
           </div>
-          <div className="w-px h-8 bg-zinc-800" />
-          <div className="text-center">
-            <p className="text-zinc-600 text-[10px] tracking-widest uppercase mb-1">Vagas</p>
-            <p className={`text-sm ${esgotado ? "text-red-400" : vagasTotal <= 20 ? "text-red-400" : "text-white"}`}>
-              {esgotado ? "Esgotado" : vagasTotal}
-            </p>
-          </div>
         </motion.div>
 
         {/* CTA */}

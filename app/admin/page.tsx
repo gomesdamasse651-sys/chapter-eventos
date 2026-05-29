@@ -151,10 +151,10 @@ export default function Admin() {
 
   // Stats
   const pagos = ingressos.filter((i) => i.status === "pago");
-  const totalPagos = pagos.length;
-  const totalF = pagos.filter((i) => i.sexo === "F").length;
-  const totalM = pagos.filter((i) => i.sexo === "M").length;
   const receita = pagos.reduce((acc, i) => acc + i.preco, 0);
+  const totalPagos = ingressos.length;
+  const totalF = ingressos.filter((i) => i.sexo === "F").length;
+  const totalM = ingressos.filter((i) => i.sexo === "M").length;
   const loteAtivo = lotes.find((l) => l.ativo);
   const vagasF = loteAtivo ? loteAtivo.limite_f - loteAtivo.vendidos_f : 0;
   const vagasM = loteAtivo ? loteAtivo.limite_m - loteAtivo.vendidos_m : 0;

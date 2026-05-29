@@ -68,7 +68,7 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM }: Pr
         {/* Info row */}
         <motion.div
           {...fade(0.7)}
-          className="flex items-center gap-8 font-[family-name:var(--font-inter)]"
+          className="flex items-center justify-center gap-8 font-[family-name:var(--font-inter)]"
         >
           <div className="text-center">
             <p className="text-zinc-600 text-[10px] tracking-widest uppercase mb-1">Data</p>

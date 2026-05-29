@@ -57,6 +57,15 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM }: Pr
           Lago Sul · QI 11 Conjunto 10 · Brasília
         </motion.p>
 
+        {/* Slogan */}
+        <motion.p
+          {...fade(0.55)}
+          className="font-[family-name:var(--font-inter)] text-[11px] tracking-[0.5em] uppercase"
+          style={{ color: "rgba(255,255,255,0.4)" }}
+        >
+          The Night Continues
+        </motion.p>
+
         {/* Divider */}
         <motion.div
           initial={{ scaleY: 0 }}
@@ -73,6 +82,11 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM }: Pr
           <div className="text-center">
             <p className="text-zinc-600 text-[10px] tracking-widest uppercase mb-1">Data</p>
             <p className="text-white text-sm">01 · AGO · 2026</p>
+          </div>
+          <div className="w-px h-8 bg-zinc-800" />
+          <div className="text-center">
+            <p className="text-zinc-600 text-[10px] tracking-widest uppercase mb-1">Horário</p>
+            <p className="text-white text-sm">22h — 3h</p>
           </div>
           <div className="w-px h-8 bg-zinc-800" />
           <div className="text-center">

@@ -5,6 +5,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import Logo from "@/components/Logo";
 
 type Ingresso = {
   id: string; nome: string; sexo: string; status: string;
@@ -131,12 +132,7 @@ export default function Dashboard() {
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-5 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
         <Link href="/" className="flex items-center gap-3 hover:opacity-70 transition-opacity">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <rect x="0" y="0" width="9" height="9" fill="white" />
-            <rect x="11" y="0" width="9" height="9" fill="white" />
-            <rect x="0" y="11" width="9" height="9" fill="white" />
-            <rect x="11" y="11" width="9" height="9" fill="white" />
-          </svg>
+          <Logo size={20} />
           <span className="text-sm font-bold tracking-widest uppercase">Chapter</span>
         </Link>
         <button

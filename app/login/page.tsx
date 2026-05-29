@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
+import Logo from "@/components/Logo";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -75,11 +76,12 @@ function LoginForm() {
   return (
     <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm flex flex-col gap-6">
-        <div className="text-center">
+        <div className="flex flex-col items-center gap-3">
+          <Logo size={28} />
           <Link href="/" className="text-3xl font-bold tracking-tighter hover:opacity-80 transition-opacity">
             CHAPTER
           </Link>
-          <p className="text-zinc-600 text-xs tracking-widest uppercase mt-1">15 de Junho</p>
+          <p className="text-zinc-600 text-xs tracking-widest uppercase">01 de Agosto</p>
         </div>
 
         {/* Abas */}

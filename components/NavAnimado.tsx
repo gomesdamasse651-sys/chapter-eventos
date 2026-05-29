@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Logo from "@/components/Logo";
 
 export default function NavAnimado() {
   return (
@@ -13,12 +14,7 @@ export default function NavAnimado() {
     >
       {/* Logo + nome */}
       <div className="flex items-center gap-3">
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="0" y="0" width="12" height="12" fill="white" opacity="0.9" />
-          <rect x="16" y="0" width="12" height="12" fill="white" opacity="0.5" />
-          <rect x="0" y="16" width="12" height="12" fill="white" opacity="0.5" />
-          <rect x="16" y="16" width="12" height="12" fill="white" opacity="0.9" />
-        </svg>
+        <Logo size={28} />
         <span className="text-[10px] tracking-[0.35em] uppercase text-zinc-400 font-[family-name:var(--font-inter)]">
           Chapter
         </span>

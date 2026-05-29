@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Logo from "@/components/Logo";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import dynamic from "next/dynamic";
 
@@ -198,9 +199,12 @@ export default function Admin() {
     <div className="min-h-screen bg-black text-white flex">
       {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-40 w-52 bg-zinc-950 border-r border-zinc-900 flex flex-col transition-transform duration-200 ${sidebarAberta ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:static md:flex`}>
-        <div className="px-6 py-6 border-b border-zinc-900">
-          <p className="text-lg font-bold tracking-tighter">CHAPTER</p>
-          <p className="text-zinc-600 text-xs tracking-widest uppercase">Admin</p>
+        <div className="px-6 py-6 border-b border-zinc-900 flex items-center gap-3">
+          <Logo size={20} />
+          <div>
+            <p className="text-sm font-bold tracking-tighter">CHAPTER</p>
+            <p className="text-zinc-600 text-xs tracking-widest uppercase">Admin</p>
+          </div>
         </div>
         <nav className="flex flex-col gap-1 p-3 flex-1">
           {navItems.map((item) => (

@@ -26,7 +26,7 @@ export default function Reembolso() {
         </section>
         <section className="flex flex-col gap-2">
           <h2 className="text-white text-xs tracking-widest uppercase">Contato</h2>
-          <p>Para solicitar reembolso: <a href="mailto:contato@chapterbrasilia.com" className="text-white hover:underline">contato@chapterbrasilia.com</a></p>
+          <p>Para solicitar reembolso: <a href="mailto:empresadamasse651@gmail.com" className="text-white hover:underline">empresadamasse651@gmail.com</a></p>
         </section>
       </div>
     </main>

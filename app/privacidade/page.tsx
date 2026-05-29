@@ -25,7 +25,7 @@ export default function Privacidade() {
         </section>
         <section className="flex flex-col gap-2">
           <h2 className="text-white text-xs tracking-widest uppercase">Seus direitos</h2>
-          <p>Você pode solicitar a exclusão dos seus dados a qualquer momento pelo email <a href="mailto:contato@chapterbrasilia.com" className="text-white hover:underline">contato@chapterbrasilia.com</a>.</p>
+          <p>Você pode solicitar a exclusão dos seus dados a qualquer momento pelo email <a href="mailto:empresadamasse651@gmail.com" className="text-white hover:underline">empresadamasse651@gmail.com</a>.</p>
         </section>
       </div>
     </main>

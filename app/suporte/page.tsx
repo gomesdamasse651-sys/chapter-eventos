@@ -14,8 +14,8 @@ export default function Suporte() {
         <section className="flex flex-col gap-2">
           <h2 className="text-white text-xs tracking-widest uppercase">Contato</h2>
           <p>Para dúvidas sobre ingressos, pagamentos ou o evento, entre em contato pelo email:</p>
-          <a href="mailto:contato@chapterbrasilia.com" className="text-white text-base tracking-wide hover:underline">
-            contato@chapterbrasilia.com
+          <a href="mailto:empresadamasse651@gmail.com" className="text-white text-base tracking-wide hover:underline">
+            empresadamasse651@gmail.com
           </a>
         </section>
         <section className="flex flex-col gap-2">

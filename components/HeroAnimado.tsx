@@ -154,10 +154,10 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM, lote
           className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-[10px] tracking-[0.3em] uppercase"
           style={{ color: "rgba(201,169,110,0.6)" }}
         >
-          {["Open Bar", "Open Food", "DJ Uchoa & Cedric", "Área VIP"].map((p, i) => (
+          {["Open Bar", "DJ Uchoa & Cedric", "Área VIP"].map((p, i) => (
             <span key={p} className="flex items-center gap-4">
               {p}
-              {i < 3 && <span style={{ color: "rgba(201,169,110,0.3)" }}>·</span>}
+              {i < 2 && <span style={{ color: "rgba(201,169,110,0.3)" }}>·</span>}
             </span>
           ))}
         </motion.div>

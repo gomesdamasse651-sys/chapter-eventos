@@ -4,7 +4,7 @@ import { incrementarVendido } from "@/lib/lotes";
 import type { Categoria, Lote } from "@/lib/lotes";
 import { v4 as uuidv4 } from "uuid";
 
-const PRECO_SEGURO_REAIS = 10;
+const PRECO_SEGURO_REAIS = 25;
 
 const CATEGORIAS_VALIDAS: Categoria[] = [
   "masc_normal",

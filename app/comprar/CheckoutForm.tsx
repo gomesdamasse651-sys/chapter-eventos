@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Categoria } from "@/lib/lotes";
 
-const PRECO_SEGURO = 10;
+const PRECO_SEGURO = 25;
 
 interface Props {
   loteId: string;

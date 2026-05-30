@@ -22,7 +22,12 @@ export default function AdminLogin() {
     });
 
     if (res.ok) {
-      router.push("/admin");
+      const json = await res.json().catch(() => ({})) as { trocar_senha?: boolean };
+      if (json.trocar_senha) {
+        router.push(`/admin/trocar-senha?email=${encodeURIComponent(email)}`);
+      } else {
+        router.push("/admin");
+      }
       router.refresh();
     } else {
       const json = await res.json().catch(() => ({}));

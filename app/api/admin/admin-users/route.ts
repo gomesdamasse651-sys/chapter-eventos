@@ -24,12 +24,12 @@ export async function POST(req: NextRequest) {
   const { nome, email } = await req.json() as { nome: string; email: string };
   if (!nome || !email) return NextResponse.json({ error: "Nome e email obrigatórios." }, { status: 400 });
 
-  const senhaTemporaria = Math.random().toString(36).slice(-10);
+  const SENHA_INICIAL = "adm123";
 
   // Cria no Supabase Auth
   const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
     email: email.toLowerCase().trim(),
-    password: senhaTemporaria,
+    password: SENHA_INICIAL,
     email_confirm: true,
   });
 
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
   // Salva na tabela admin_users
   const { data: adminRecord, error: dbError } = await supabaseAdmin
     .from("admin_users")
-    .insert({ nome, email: email.toLowerCase().trim(), user_id: authData.user.id })
+    .insert({ nome, email: email.toLowerCase().trim(), user_id: authData.user.id, primeiro_acesso: true })
     .select()
     .single();
 
@@ -62,16 +62,16 @@ export async function POST(req: NextRequest) {
         <p>Olá, ${nome}!</p>
         <p>Você foi adicionado como administrador do Chapter Two.</p>
         <p><strong>Email:</strong> ${email}<br/>
-        <strong>Senha temporária:</strong> ${senhaTemporaria}</p>
+        <strong>Senha temporária:</strong> ${SENHA_INICIAL}</p>
         <p>Acesse: <a href="${APP_URL}/admin/login">${APP_URL}/admin/login</a></p>
-        <p>Recomendamos alterar sua senha após o primeiro acesso.</p>
+        <p>Você será solicitado a trocar a senha no primeiro acesso.</p>
       `,
     });
   } catch {
     // Email falhou mas admin foi criado — não é erro crítico
   }
 
-  return NextResponse.json({ admin: adminRecord, senha_temporaria: senhaTemporaria });
+  return NextResponse.json({ admin: adminRecord, senha_temporaria: SENHA_INICIAL });
 }
 
 export async function DELETE(req: NextRequest) {

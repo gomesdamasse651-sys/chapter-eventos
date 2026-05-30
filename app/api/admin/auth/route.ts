@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
   // Verifica se está na tabela admin_users
   const { data: adminUser } = await supabaseAdmin
     .from("admin_users")
-    .select("id")
+    .select("id, primeiro_acesso")
     .eq("email", email.toLowerCase().trim())
     .single();
 
@@ -29,7 +29,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Acesso não autorizado." }, { status: 403 });
   }
 
-  const res = NextResponse.json({ success: true });
+  const primeiroacesso = (adminUser as { id: string; primeiro_acesso: boolean }).primeiro_acesso;
+
+  const res = NextResponse.json({ success: true, trocar_senha: primeiroacesso });
   res.cookies.set("admin_auth", "true", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

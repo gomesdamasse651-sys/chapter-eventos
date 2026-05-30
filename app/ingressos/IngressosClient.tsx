@@ -44,7 +44,7 @@ function LinhaIngresso({ label, preco, vagas, loteId, categoria, isVip }: LinhaP
         <span className="text-[#c9a96e] font-light">R$ {preco.toFixed(0)},00</span>
         {vagas > 0 ? (
           <Link
-            href={`/comprar?lote=${loteId}&cat=${categoria}`}
+            href={`/comprar?lote_id=${loteId}&categoria=${categoria}`}
             className="text-xs tracking-widest uppercase border border-[#1a2e26] bg-[#1a2e26] text-white px-4 py-2 hover:bg-[#22392e] transition-colors"
           >
             Comprar

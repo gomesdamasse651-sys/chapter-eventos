@@ -179,7 +179,7 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM, lote
           ) : (
             <>
               <Link
-                href="/comprar"
+                href="/ingressos"
                 className="flex-1 py-3.5 text-center text-xs tracking-widest uppercase transition-opacity hover:opacity-80"
                 style={{
                   background: GOLD,

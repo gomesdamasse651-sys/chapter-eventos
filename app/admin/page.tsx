@@ -207,7 +207,17 @@ export default function Admin() {
           </div>
         </div>
         <nav className="flex flex-col gap-1 p-3 flex-1">
-          {navItems.map((item) => (
+          {navItems.slice(0, 1).map((item) => (
+            <button key={item.id} onClick={() => { setSecao(item.id); setSidebarAberta(false); }}
+              className={`text-left px-3 py-2 text-xs tracking-widest uppercase transition-colors rounded ${secao === item.id ? "bg-zinc-800 text-white" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900"}`}>
+              {item.label}
+            </button>
+          ))}
+          <a href="/admin/lotes"
+            className="text-left px-3 py-2 text-xs tracking-widest uppercase transition-colors rounded text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900">
+            Lotes
+          </a>
+          {navItems.slice(1).map((item) => (
             <button key={item.id} onClick={() => { setSecao(item.id); setSidebarAberta(false); }}
               className={`text-left px-3 py-2 text-xs tracking-widest uppercase transition-colors rounded ${secao === item.id ? "bg-zinc-800 text-white" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900"}`}>
               {item.label}

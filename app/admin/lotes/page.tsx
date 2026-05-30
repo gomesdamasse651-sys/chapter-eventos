@@ -109,7 +109,7 @@ export default async function AdminLotesPage() {
 
   return (
     <main
-      className="min-h-screen text-white px-4 md:px-8 py-10 flex flex-col gap-6 max-w-4xl mx-auto"
+      className="min-h-screen text-white px-4 md:px-8 py-10 flex flex-col gap-6"
       style={{ background: BG }}
     >
       {/* ── breadcrumb ── */}

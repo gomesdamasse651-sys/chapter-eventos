@@ -27,7 +27,17 @@ export default function NavAnimado() {
         </span>
         <Link
           href="/login"
-          className="text-[10px] tracking-widest uppercase text-zinc-500 hover:text-white transition-colors border border-zinc-800 hover:border-zinc-500 px-4 py-2 font-[family-name:var(--font-inter)]"
+          className="text-[10px] uppercase font-[family-name:var(--font-inter)] transition-colors"
+          style={{
+            background: "rgba(255,255,255,0.15)",
+            border: "1px solid rgba(255,255,255,0.7)",
+            color: "#ffffff",
+            fontWeight: 600,
+            letterSpacing: "0.1em",
+            padding: "8px 20px",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.25)")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.15)")}
         >
           Entrar
         </Link>

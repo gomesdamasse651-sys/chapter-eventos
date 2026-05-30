@@ -1,98 +1,140 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { incrementarVendido } from "@/lib/lotes";
+import type { Categoria, Lote } from "@/lib/lotes";
 import { v4 as uuidv4 } from "uuid";
 
-const PRECO_SEGURO = 11.9;
+const PRECO_SEGURO_REAIS = 10;
+
+const CATEGORIAS_VALIDAS: Categoria[] = [
+  "masc_normal",
+  "fem_normal",
+  "masc_vip",
+  "fem_vip",
+];
+
+function getPrecoCategoria(lote: Lote, categoria: Categoria): number {
+  return lote[`${categoria}_preco`] as number;
+}
+
+function getVendidosCategoria(lote: Lote, categoria: Categoria): number {
+  return lote[`${categoria}_vendidos`] as number;
+}
+
+function getTotalCategoria(lote: Lote, categoria: Categoria): number {
+  return lote[`${categoria}_total`] as number;
+}
+
+interface CheckoutBody {
+  lote_id: string;
+  categoria: string;
+  nome: string;
+  email: string;
+  telefone?: string;
+  seguro_reembolso?: boolean;
+}
 
 export async function POST(req: NextRequest) {
-  const { nome, email, telefone, quantidade, sexo, tipo, cupom_id, cupom_desconto, seguro, lote_id, taxa_pct } = await req.json();
-
-  if (!sexo || !["F", "M"].includes(sexo)) {
-    return NextResponse.json({ error: "Sexo inválido." }, { status: 400 });
+  let body: CheckoutBody;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Payload inválido." }, { status: 400 });
   }
-  const isVip = tipo === "vip";
 
+  const { lote_id, categoria, nome, email, telefone, seguro_reembolso = false } = body;
+
+  if (!lote_id || !categoria || !nome || !email) {
+    return NextResponse.json({ error: "Campos obrigatórios ausentes." }, { status: 400 });
+  }
+
+  if (!CATEGORIAS_VALIDAS.includes(categoria as Categoria)) {
+    return NextResponse.json({ error: "Categoria inválida." }, { status: 400 });
+  }
+
+  const cat = categoria as Categoria;
+
+  // Busca lote ativo
   const { data: lote, error: errLote } = await supabaseAdmin
     .from("lotes")
     .select("*")
     .eq("id", lote_id)
-    .eq("ativo", true)
+    .eq("status", "ativo")
     .single();
 
   if (errLote || !lote) {
-    return NextResponse.json({ error: "Lote não encontrado." }, { status: 400 });
+    return NextResponse.json({ error: "Lote não encontrado ou inativo." }, { status: 400 });
   }
 
-  const vendidos = isVip
-    ? (sexo === "F" ? lote.vendidos_vip_f : lote.vendidos_vip_m)
-    : (sexo === "F" ? lote.vendidos_f : lote.vendidos_m);
-  const limite = isVip
-    ? (sexo === "F" ? lote.limite_vip_f : lote.limite_vip_m)
-    : (sexo === "F" ? lote.limite_f : lote.limite_m);
-  if (vendidos + quantidade > limite) {
-    const restam = limite - vendidos;
+  const loteTyped = lote as Lote;
+  const vendidos = getVendidosCategoria(loteTyped, cat);
+  const total = getTotalCategoria(loteTyped, cat);
+
+  if (vendidos >= total) {
     return NextResponse.json(
-      { error: `Só restam ${restam} vaga(s) ${isVip ? "VIP " : ""}${sexo === "F" ? "feminina(s)" : "masculina(s)"} neste lote.` },
+      { error: `Categoria ${cat} esgotada neste lote.` },
       { status: 409 }
     );
   }
 
-  const preco = isVip
-    ? (sexo === "F" ? lote.preco_vip_f : lote.preco_vip_m)
-    : (sexo === "F" ? lote.preco_f : lote.preco_m);
-  let subtotal = preco * quantidade;
-  if (cupom_id) {
-    const pct = (cupom_desconto ?? 10) / 100;
-    subtotal = subtotal - Math.round(subtotal * pct * 100) / 100;
-  }
-  const seguroTotal = seguro ? PRECO_SEGURO * quantidade : 0;
-  const taxa = taxa_pct ? Math.round(subtotal * (taxa_pct / 100) * 100) / 100 : 0;
-  const total = subtotal + seguroTotal + taxa;
+  const precoReais = getPrecoCategoria(loteTyped, cat);
+  const totalReais = precoReais + (seguro_reembolso ? PRECO_SEGURO_REAIS : 0);
+  const totalCentavos = Math.round(totalReais * 100);
 
-  // Cria ingressos pendentes — um UUID por ingresso, usado como order_nsu individual
   const orderNsu = `chapter-${uuidv4()}`;
-  const ingressosData = Array.from({ length: quantidade }, () => ({
-    nome,
-    email,
-    telefone: telefone || null,
-    sexo,
-    tipo: isVip ? "vip" : "normal",
-    lote_id: lote.id,
-    preco,
-    seguro: seguro ?? false,
-    cupom_id: cupom_id || null,
-    qr_code: null,
-    grupo_id: null,
-    status: "pendente",
-    order_nsu: orderNsu,
-  }));
 
-  const { error: errInsert } = await supabaseAdmin.from("ingressos").insert(ingressosData);
-  if (errInsert) {
+  // Cria ingresso pendente
+  const { data: ingresso, error: errInsert } = await supabaseAdmin
+    .from("ingressos")
+    .insert({
+      nome,
+      email,
+      telefone: telefone || null,
+      lote_id: lote.id,
+      categoria: cat,
+      seguro_reembolso,
+      preco: totalReais,
+      status: "pendente",
+      order_nsu: orderNsu,
+    })
+    .select("id")
+    .single();
+
+  if (errInsert || !ingresso) {
     return NextResponse.json({ error: "Erro ao registrar pedido." }, { status: 500 });
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "https://chapter-eventos.vercel.app";
-  const redirectUrl = `${appUrl}/confirmacao?order_nsu=${orderNsu}`;
-  const webhookUrl = `${appUrl}/api/webhook-pagamento`;
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
+    "https://chapter-eventos.vercel.app";
 
-  const items = [
+  const redirectUrl = `${appUrl}/ingresso/confirmado?id=${ingresso.id}`;
+  const webhookUrl = `${appUrl}/api/webhook/infinitepay`;
+
+  const isHttps = appUrl.startsWith("https://");
+
+  const items: { quantity: number; price: number; description: string }[] = [
     {
-      quantity: quantidade,
-      price: Math.round(preco * 100),
-      description: `Ingresso Chapter Two — 01 de Agosto${isVip ? " (VIP)" : ""}`,
+      quantity: 1,
+      price: Math.round(precoReais * 100),
+      description: `Ingresso Chapter Two — 01/08/2026 (${cat.replace("_", " ")})`,
     },
-    ...(seguro
-      ? [{ quantity: quantidade, price: Math.round(PRECO_SEGURO * 100), description: "Seguro Reembolsável" }]
-      : []),
   ];
+
+  if (seguro_reembolso) {
+    items.push({
+      quantity: 1,
+      price: Math.round(PRECO_SEGURO_REAIS * 100),
+      description: "Seguro Reembolsável",
+    });
+  }
 
   const payload = {
     handle: process.env.INFINITEPAY_HANDLE,
     order_nsu: orderNsu,
     items,
-    ...(redirectUrl.startsWith("https://") ? { redirect_url: redirectUrl } : {}),
-    ...(webhookUrl.startsWith("https://") ? { webhook_url: webhookUrl } : {}),
+    ...(isHttps ? { redirect_url: redirectUrl } : {}),
+    ...(isHttps ? { webhook_url: webhookUrl } : {}),
     customer: {
       name: nome,
       email,
@@ -100,17 +142,23 @@ export async function POST(req: NextRequest) {
     },
   };
 
-  const res = await fetch("https://api.checkout.infinitepay.io/links", {
+  const ipRes = await fetch("https://api.checkout.infinitepay.io/links", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
 
-  const body = await res.text();
-  if (!res.ok) return NextResponse.json({ error: body }, { status: res.status });
+  const ipBody = await ipRes.text();
 
-  const data = JSON.parse(body);
-  const checkoutUrl = data.url ?? data.link ?? data.checkout_url;
+  if (!ipRes.ok) {
+    // Rollback ingresso
+    await supabaseAdmin.from("ingressos").delete().eq("id", ingresso.id);
+    return NextResponse.json({ error: ipBody }, { status: ipRes.status });
+  }
 
-  return NextResponse.json({ url: checkoutUrl, orderNsu });
+  const ipData = JSON.parse(ipBody) as Record<string, unknown>;
+  const checkoutUrl =
+    (ipData.url ?? ipData.link ?? ipData.checkout_url) as string | undefined;
+
+  return NextResponse.json({ checkout_url: checkoutUrl, order_nsu: orderNsu });
 }

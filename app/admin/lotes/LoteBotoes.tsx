@@ -4,14 +4,14 @@ import { forcarAbrirLote, forcarFecharLote } from "./actions";
 import { useTransition } from "react";
 
 type Props = {
-  loteId: string;
-  status: string;
+  loteId: number;
+  ativo: boolean;
 };
 
-export default function LoteBotoes({ loteId, status }: Props) {
+export default function LoteBotoes({ loteId, ativo }: Props) {
   const [pending, startTransition] = useTransition();
 
-  if (status === "ativo" || status === "esgotado") {
+  if (ativo) {
     return (
       <button
         onClick={() => startTransition(() => forcarFecharLote(loteId))}
@@ -28,22 +28,18 @@ export default function LoteBotoes({ loteId, status }: Props) {
     );
   }
 
-  if (status === "fechado") {
-    return (
-      <button
-        onClick={() => startTransition(() => forcarAbrirLote(loteId))}
-        disabled={pending}
-        className="text-[12px] px-3 py-1 rounded transition-colors disabled:opacity-40"
-        style={{
-          border: "0.5px solid #639922",
-          color: "#27500A",
-          background: "transparent",
-        }}
-      >
-        {pending ? "..." : "Forçar abrir"}
-      </button>
-    );
-  }
-
-  return null;
+  return (
+    <button
+      onClick={() => startTransition(() => forcarAbrirLote(loteId))}
+      disabled={pending}
+      className="text-[12px] px-3 py-1 rounded transition-colors disabled:opacity-40"
+      style={{
+        border: "0.5px solid #639922",
+        color: "#27500A",
+        background: "transparent",
+      }}
+    >
+      {pending ? "..." : "Forçar abrir"}
+    </button>
+  );
 }

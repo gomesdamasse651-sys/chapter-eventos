@@ -26,7 +26,7 @@ function getTotalCategoria(lote: Lote, categoria: Categoria): number {
 }
 
 interface CheckoutBody {
-  lote_id: string;
+  lote_id: number | string;
   categoria: string;
   nome: string;
   email: string;
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     .from("lotes")
     .select("*")
     .eq("id", lote_id)
-    .eq("status", "ativo")
+    .eq("ativo", true)
     .single();
 
   if (errLote || !lote) {

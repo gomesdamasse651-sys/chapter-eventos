@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
   // Incrementa vendidos no lote
   const categoria = ingresso.categoria as string | null;
   if (ingresso.lote_id && categoria && CATEGORIAS_VALIDAS.includes(categoria as Categoria)) {
-    await incrementarVendido(ingresso.lote_id as string, categoria as Categoria);
+    await incrementarVendido(ingresso.lote_id as number, categoria as Categoria);
   }
 
   // Envia email com QR code

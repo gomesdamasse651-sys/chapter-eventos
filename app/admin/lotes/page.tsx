@@ -49,8 +49,8 @@ function progressColor(pct: number): string {
 
 // ── badge ──────────────────────────────────────────────────────────────────
 
-function Badge({ status, forcado }: { status: string; forcado: boolean }) {
-  if (status === "ativo") {
+function Badge({ ativo, forcado }: { ativo: boolean; forcado: boolean }) {
+  if (ativo) {
     return (
       <span
         className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-0.5 rounded-full font-medium"
@@ -61,16 +61,6 @@ function Badge({ status, forcado }: { status: string; forcado: boolean }) {
           style={{ background: "currentColor" }}
         />
         {forcado ? "ativo (forçado)" : "em andamento"}
-      </span>
-    );
-  }
-  if (status === "esgotado") {
-    return (
-      <span
-        className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-0.5 rounded-full font-medium"
-        style={{ background: "#FCEBEB", color: "#791F1F" }}
-      >
-        esgotado
       </span>
     );
   }
@@ -144,7 +134,7 @@ export default async function AdminLotesPage() {
           {/* header */}
           <div className="flex items-start justify-between gap-4">
             <div className="flex flex-col gap-1">
-              <Badge status={loteAtivo.status} forcado={loteAtivo.forcado_admin} />
+              <Badge ativo={loteAtivo.ativo} forcado={loteAtivo.forcado_admin} />
               <p className="text-[12px] text-zinc-500 mt-1">
                 Próximo lote mais caro. Garante agora.
               </p>
@@ -304,7 +294,7 @@ export default async function AdminLotesPage() {
           const fat        = faturamentoLote(lote);
           const prev       = previsaoLote(lote);
           const pct        = capacidade > 0 ? (vendidos / capacidade) * 100 : 0;
-          const isAtivo    = lote.status === "ativo";
+          const isAtivo    = lote.ativo;
           const isUltimo   = idx === lotes.length - 1;
 
           const cats = [
@@ -329,9 +319,9 @@ export default async function AdminLotesPage() {
                   <span className="text-[15px] font-medium text-white">
                     {ordinal(lote.numero)} Lote{isUltimo ? " — último" : ""}
                   </span>
-                  <Badge status={lote.status} forcado={lote.forcado_admin} />
+                  <Badge ativo={lote.ativo} forcado={lote.forcado_admin} />
                 </div>
-                <LoteBotoes loteId={lote.id} status={lote.status} />
+                <LoteBotoes loteId={lote.id} ativo={lote.ativo} />
               </div>
 
               {/* lote ativo: grid com vendidos + faturamento por categoria */}

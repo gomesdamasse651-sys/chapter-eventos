@@ -109,7 +109,7 @@ export default function IngressosClient({ lote }: Props) {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
             <span className="text-emerald-400 text-xs tracking-widest uppercase">
-              {lote.nome} — em andamento
+              Lote {lote.numero} — em andamento
             </span>
           </div>
           {!semVagas && (

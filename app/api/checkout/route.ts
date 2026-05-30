@@ -83,6 +83,8 @@ export async function POST(req: NextRequest) {
 
   const orderNsu = `chapter-${uuidv4()}`;
 
+  const sexo = cat.startsWith("masc") ? "M" : "F";
+
   // Cria ingresso pendente
   const { data: ingresso, error: errInsert } = await supabaseAdmin
     .from("ingressos")
@@ -90,8 +92,10 @@ export async function POST(req: NextRequest) {
       nome,
       email,
       telefone: telefone || null,
+      sexo,
       lote_id: lote.id,
       categoria: cat,
+      seguro: seguro_reembolso,
       seguro_reembolso,
       preco: totalReais,
       status: "pendente",
@@ -101,6 +105,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (errInsert || !ingresso) {
+    console.error("INSERT ERROR:", JSON.stringify(errInsert));
     return NextResponse.json({ error: "Erro ao registrar pedido." }, { status: 500 });
   }
 

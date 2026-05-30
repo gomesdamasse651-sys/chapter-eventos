@@ -135,13 +135,22 @@ export default function Dashboard() {
           <Logo size={20} />
           <span className="text-sm font-bold tracking-widest uppercase">Chapter</span>
         </Link>
-        <button
-          onClick={logout}
-          className="text-xs tracking-widest uppercase text-zinc-500 hover:text-red-400 transition-colors border px-4 py-2"
-          style={{ borderColor: "rgba(255,255,255,0.1)" }}
-        >
-          Sair
-        </button>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/dashboard/reembolso"
+            className="text-xs tracking-widest uppercase text-zinc-500 hover:text-white transition-colors border px-4 py-2"
+            style={{ borderColor: "rgba(255,255,255,0.1)" }}
+          >
+            Reembolso
+          </Link>
+          <button
+            onClick={logout}
+            className="text-xs tracking-widest uppercase text-zinc-500 hover:text-red-400 transition-colors border px-4 py-2"
+            style={{ borderColor: "rgba(255,255,255,0.1)" }}
+          >
+            Sair
+          </button>
+        </div>
       </header>
 
       <div className="flex-1 max-w-2xl mx-auto w-full px-6 py-12 flex flex-col gap-8">

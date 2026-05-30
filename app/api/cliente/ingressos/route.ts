@@ -10,7 +10,7 @@ export async function GET() {
 
   const { data, error } = await supabaseAdmin
     .from("ingressos")
-    .select("id, nome, sexo, status, qr_code, preco, seguro, paid_at, lotes(numero)")
+    .select("id, nome, sexo, status, qr_code, preco, seguro, seguro_reembolso, paid_at, categoria, reembolso_solicitado, reembolso_solicitado_em, reembolso_pago, lotes(numero)")
     .eq("email", user.email!)
     .order("criado_em", { ascending: false });
 

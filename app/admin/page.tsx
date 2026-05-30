@@ -226,6 +226,10 @@ export default function Admin() {
             className="text-left px-3 py-2 text-xs tracking-widest uppercase transition-colors rounded text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900">
             Lotes
           </a>
+          <a href="/admin/reembolsos"
+            className="text-left px-3 py-2 text-xs tracking-widest uppercase transition-colors rounded text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900">
+            Reembolsos
+          </a>
           {navItems.slice(1).map((item) => (
             <button key={item.id} onClick={() => { setSecao(item.id); setSidebarAberta(false); }}
               className={`text-left px-3 py-2 text-xs tracking-widest uppercase transition-colors rounded ${secao === item.id ? "bg-zinc-800 text-white" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900"}`}>

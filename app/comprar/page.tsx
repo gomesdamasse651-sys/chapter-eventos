@@ -38,7 +38,7 @@ export default async function ComprarPage({ searchParams }: Props) {
     .from("lotes")
     .select("*")
     .eq("id", lote_id)
-    .eq("status", "ativo")
+    .eq("ativo", true)
     .single();
 
   if (error || !lote) {

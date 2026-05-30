@@ -135,14 +135,14 @@ export default function IngressosClient({ lote }: Props) {
                   label="Masculino"
                   preco={lote.masc_normal_preco}
                   vagas={vagasMascNormal}
-                  loteId={lote.id}
+                  loteId={String(lote.id)}
                   categoria="masc_normal"
                 />
                 <LinhaIngresso
                   label="Feminino"
                   preco={lote.fem_normal_preco}
                   vagas={vagasFemNormal}
-                  loteId={lote.id}
+                  loteId={String(lote.id)}
                   categoria="fem_normal"
                 />
               </div>
@@ -158,7 +158,7 @@ export default function IngressosClient({ lote }: Props) {
                   label="Masculino"
                   preco={lote.masc_vip_preco}
                   vagas={vagasMascVip}
-                  loteId={lote.id}
+                  loteId={String(lote.id)}
                   categoria="masc_vip"
                   isVip
                 />
@@ -166,7 +166,7 @@ export default function IngressosClient({ lote }: Props) {
                   label="Feminino"
                   preco={lote.fem_vip_preco}
                   vagas={vagasFemVip}
-                  loteId={lote.id}
+                  loteId={String(lote.id)}
                   categoria="fem_vip"
                   isVip
                 />

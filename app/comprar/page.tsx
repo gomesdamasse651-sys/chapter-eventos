@@ -85,7 +85,7 @@ export default async function ComprarPage({ searchParams }: Props) {
         </div>
 
         <CheckoutForm
-          loteId={l.id}
+          loteId={String(l.id)}
           categoria={cat}
           categoriaLabel={categoriaLabel(cat)}
           precoReais={preco}

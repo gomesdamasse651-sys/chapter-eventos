@@ -118,7 +118,7 @@ export default function Comprar() {
         <div>
           <p className="text-xs tracking-[0.4em] text-zinc-500 uppercase mb-2">Ingresso</p>
           <h1 className="text-4xl font-bold tracking-tighter">CHAPTER TWO</h1>
-          <p className="text-zinc-500 text-sm mt-1">13 de Junho · Setor de Clubes Sul</p>
+          <p className="text-zinc-500 text-sm mt-1">01 de Agosto · Lago Sul</p>
           {lote && <p className="text-zinc-600 text-xs mt-1 tracking-widest uppercase">Lote {lote.numero}</p>}
         </div>
 

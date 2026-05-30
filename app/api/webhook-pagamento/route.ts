@@ -120,11 +120,11 @@ export async function POST(req: NextRequest) {
   await resend.emails.send({
     from: "Chapter <noreply@resend.dev>",
     to: primeiroIngresso.email,
-    subject: "Seu ingresso Chapter — 15 de Junho",
+    subject: "Seu ingresso Chapter — 01 de Agosto",
     html: `
       <div style="background:#000;color:#fff;padding:40px;font-family:sans-serif;max-width:600px;margin:0 auto;">
         <h1 style="font-size:32px;font-weight:bold;letter-spacing:-1px;margin:0 0 4px;">CHAPTER</h1>
-        <p style="color:#555;font-size:11px;letter-spacing:4px;text-transform:uppercase;margin:0 0 32px;">15 de Junho · Lago Sul · QI 11 Conjunto 10</p>
+        <p style="color:#555;font-size:11px;letter-spacing:4px;text-transform:uppercase;margin:0 0 32px;">01 de Agosto · Lago Sul · QI 11 Conjunto 10</p>
         <p style="color:#ccc;margin-bottom:8px;">Olá, <strong>${primeiroIngresso.nome}</strong>!</p>
         <p style="color:#888;margin-bottom:32px;">Pagamento confirmado. Apresente o QR code abaixo na entrada do evento.</p>
         <hr style="border:none;border-top:1px solid #222;margin:0 0 32px;" />

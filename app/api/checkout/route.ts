@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     {
       quantity: quantidade,
       price: Math.round(preco * 100),
-      description: `Ingresso Chapter Two — 13 de Junho${isVip ? " (VIP)" : ""}`,
+      description: `Ingresso Chapter Two — 01 de Agosto${isVip ? " (VIP)" : ""}`,
     },
     ...(seguro
       ? [{ quantity: quantidade, price: Math.round(PRECO_SEGURO * 100), description: "Seguro Reembolsável" }]

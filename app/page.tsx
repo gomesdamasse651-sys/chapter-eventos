@@ -7,7 +7,7 @@ import Countdown from "@/components/Countdown";
 async function getLoteAtivo() {
   const { data } = await supabaseAdmin
     .from("lotes")
-    .select("preco_f, preco_m, vendidos_f, vendidos_m, limite_f, limite_m")
+    .select("numero, preco_f, preco_m, vendidos_f, vendidos_m, limite_f, limite_m")
     .eq("ativo", true)
     .single();
   return data;
@@ -28,13 +28,26 @@ export default async function Home() {
         esgotado={esgotado}
         precoF={loteAtivo?.preco_f}
         precoM={loteAtivo?.preco_m}
+        loteNumero={loteAtivo?.numero}
       />
 
       {/* Countdown */}
       <section className="flex flex-col items-center gap-4 py-16 border-t border-zinc-900">
         <p className="text-zinc-600 text-[10px] tracking-widest uppercase">Faltam</p>
         <Countdown />
-        <p className="text-zinc-700 text-xs tracking-widest uppercase mt-2">13 · Jun · 2026</p>
+        <p className="text-zinc-700 text-xs tracking-widest uppercase mt-2">01 · Ago · 2026</p>
+      </section>
+
+      {/* Flyer Oficial */}
+      <section className="border-t border-zinc-900 px-6 py-14 max-w-md mx-auto w-full flex flex-col items-center gap-6">
+        <p className="text-zinc-600 text-[10px] tracking-widest uppercase text-center">Flyer Oficial</p>
+        <div className="relative group overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950/50 p-2 transition-all duration-500 hover:border-zinc-700 hover:shadow-[0_0_50px_rgba(255,255,255,0.05)]">
+          <img
+            src="/images/chapter-two-poster.png"
+            alt="Chapter Two Poster"
+            className="w-full h-auto rounded-xl transition duration-500 group-hover:scale-[1.02]"
+          />
+        </div>
       </section>
 
       {/* Descrição */}

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
-const EVENTO = new Date("2026-06-13T22:00:00-03:00");
+const EVENTO = new Date("2026-08-01T22:00:00-03:00");
 
 function calcular() {
   const diff = EVENTO.getTime() - Date.now();

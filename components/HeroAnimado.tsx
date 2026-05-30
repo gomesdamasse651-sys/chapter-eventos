@@ -1,118 +1,223 @@
 "use client";
 
-import { motion, type Easing } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
-import { LampContainer } from "@/components/ui/lamp";
+import { useEffect, useState } from "react";
 
-const EASE: Easing = "easeOut";
-
-const fade = (delay: number) => ({
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.7, delay, ease: EASE },
-});
+const EVENTO = new Date("2026-08-01T22:00:00-03:00");
+const GOLD = "#c9a96e";
 
 interface Props {
   vagasTotal: number;
   esgotado: boolean;
   precoF?: number;
   precoM?: number;
+  loteNumero?: number;
 }
 
-export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM }: Props) {
-  return (
-    <LampContainer>
-      <div className="flex flex-col items-center text-center gap-5 w-full max-w-4xl">
-        {/* Eyebrow */}
-        <motion.p
-          {...fade(0.2)}
-          className="text-xs tracking-[0.45em] text-zinc-500 uppercase font-[family-name:var(--font-inter)]"
-        >
-          Chapter Two · 13 de Junho
-        </motion.p>
+function useCountdown() {
+  const [diff, setDiff] = useState(0);
 
+  useEffect(() => {
+    const tick = () => setDiff(Math.max(0, EVENTO.getTime() - Date.now()));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const dias = Math.floor(diff / 86400000);
+  const hrs  = Math.floor((diff % 86400000) / 3600000);
+  const min  = Math.floor((diff % 3600000) / 60000);
+  return { dias, hrs, min };
+}
+
+function Pad({ n, label }: { n: number; label: string }) {
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <span
+        className="text-5xl md:text-6xl leading-none tabular-nums"
+        style={{ fontFamily: "var(--font-bebas)", color: GOLD }}
+      >
+        {String(n).padStart(2, "0")}
+      </span>
+      <span className="text-[9px] tracking-[0.3em] uppercase" style={{ color: "rgba(201,169,110,0.5)" }}>
+        {label}
+      </span>
+    </div>
+  );
+}
+
+export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM, loteNumero }: Props) {
+  const { dias, hrs, min } = useCountdown();
+
+  const precoExibir = precoF
+    ? `A partir de R$ ${Math.round(precoF / 100)}`
+    : null;
+
+  return (
+    <section className="relative w-full min-h-screen flex flex-col overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <img
+          src="/images/chapter-two-poster.png"
+          alt=""
+          className="w-full h-full object-cover"
+          style={{ animation: "slowZoom 20s ease-in-out infinite alternate" }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.92) 100%)",
+          }}
+        />
+      </div>
+
+      {/* Lote badge */}
+      {loteNumero && (
+        <div className="absolute top-24 right-6 z-10 text-right">
+          <div
+            className="text-[9px] tracking-[0.35em] uppercase mb-1"
+            style={{ color: "rgba(201,169,110,0.6)" }}
+          >
+            Lote {loteNumero}
+          </div>
+          {precoExibir && (
+            <div className="text-xs" style={{ color: GOLD, fontFamily: "var(--font-cormorant)" }}>
+              {precoExibir}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Content */}
+      <div className="relative z-10 flex flex-col items-center justify-end flex-1 pb-16 px-6 text-center gap-8">
         {/* Title */}
-        <motion.h1
-          {...fade(0.4)}
-          className="font-[family-name:var(--font-playfair)] leading-none select-none"
-          style={{ fontSize: "clamp(5rem,16vw,9rem)" }}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.2, ease: "easeOut" }}
+          className="flex flex-col items-center leading-none select-none"
         >
-          <span className="text-white">CHAP</span>
-          <span
+          <h1
+            className="text-white"
             style={{
-              color: "transparent",
-              WebkitTextStroke: "1.5px rgba(255,255,255,0.5)",
+              fontFamily: "var(--font-bebas)",
+              fontSize: "clamp(72px,14vw,140px)",
+              letterSpacing: "0.05em",
             }}
           >
-            T
-          </span>
-          <span className="text-white">ER</span>
-        </motion.h1>
-
-        {/* Subtitle */}
-        <motion.p
-          {...fade(0.5)}
-          className="text-zinc-400 text-sm tracking-widest uppercase font-[family-name:var(--font-inter)]"
-        >
-          Setor de Clubes Sul · Brasília
-        </motion.p>
-
-        {/* Slogan */}
-        <motion.p
-          {...fade(0.55)}
-          className="font-[family-name:var(--font-inter)] text-[11px] tracking-[0.5em] uppercase"
-          style={{ color: "rgba(255,255,255,0.4)" }}
-        >
-          The Night Continues
-        </motion.p>
-
-        {/* Divider */}
-        <motion.div
-          initial={{ scaleY: 0 }}
-          animate={{ scaleY: 1 }}
-          transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
-          className="w-px h-12 bg-zinc-700 origin-top"
-        />
-
-        {/* Info row */}
-        <motion.div
-          {...fade(0.7)}
-          className="flex items-center justify-center gap-8 font-[family-name:var(--font-inter)]"
-        >
-          <div className="text-center">
-            <p className="text-zinc-600 text-[10px] tracking-widest uppercase mb-1">Data</p>
-            <p className="text-white text-sm">13 · JUN · 2026</p>
-          </div>
-          <div className="w-px h-8 bg-zinc-800" />
-          <div className="text-center">
-            <p className="text-zinc-600 text-[10px] tracking-widest uppercase mb-1">Horário</p>
-            <p className="text-white text-sm">22h — 3h</p>
-          </div>
-          <div className="w-px h-8 bg-zinc-800" />
-          <div className="text-center">
-            <p className="text-zinc-600 text-[10px] tracking-widest uppercase mb-1">Local</p>
-            <p className="text-white text-sm">Lago Sul</p>
-          </div>
+            CHAPTER
+          </h1>
+          <h2
+            style={{
+              fontFamily: "var(--font-bebas)",
+              fontSize: "clamp(48px,9vw,96px)",
+              letterSpacing: "0.25em",
+              color: GOLD,
+            }}
+          >
+            TWO
+          </h2>
         </motion.div>
 
-        {/* CTA */}
-        <motion.div {...fade(0.8)} className="mt-2">
+        {/* Date + location */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.7, delay: 0.5 }}
+          className="text-xs tracking-[0.4em] uppercase"
+          style={{ color: "rgba(255,255,255,0.45)", fontFamily: "var(--font-inter)" }}
+        >
+          01 de Agosto · Lago Sul · Brasília
+        </motion.p>
+
+        {/* Countdown */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.65 }}
+          className="flex items-end gap-6"
+        >
+          <Pad n={dias} label="dias" />
+          <span className="text-3xl mb-4" style={{ color: GOLD, fontFamily: "var(--font-bebas)" }}>:</span>
+          <Pad n={hrs}  label="hrs"  />
+          <span className="text-3xl mb-4" style={{ color: GOLD, fontFamily: "var(--font-bebas)" }}>:</span>
+          <Pad n={min}  label="min"  />
+        </motion.div>
+
+        {/* Perks */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.7, delay: 0.8 }}
+          className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-[10px] tracking-[0.3em] uppercase"
+          style={{ color: "rgba(201,169,110,0.6)" }}
+        >
+          {["Open Bar", "Open Food", "DJ Uchoa & Cedric", "Área VIP"].map((p, i) => (
+            <span key={p} className="flex items-center gap-4">
+              {p}
+              {i < 3 && <span style={{ color: "rgba(201,169,110,0.3)" }}>·</span>}
+            </span>
+          ))}
+        </motion.div>
+
+        {/* CTAs */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.95 }}
+          className="flex flex-col sm:flex-row gap-3 w-full max-w-xs"
+        >
           {esgotado ? (
-            <span className="px-10 py-3 border border-zinc-800 text-sm tracking-widest uppercase text-zinc-700 cursor-not-allowed font-[family-name:var(--font-inter)]">
+            <span
+              className="w-full py-3.5 text-center text-xs tracking-widest uppercase border cursor-not-allowed"
+              style={{ borderColor: "rgba(201,169,110,0.3)", color: "rgba(201,169,110,0.4)" }}
+            >
               Esgotado
             </span>
           ) : (
-            <motion.div whileHover={{ scale: 1.02 }} transition={{ duration: 0.2 }}>
+            <>
               <Link
                 href="/comprar"
-                className="inline-block px-10 py-3 border border-white text-sm tracking-widest uppercase text-white hover:bg-white hover:text-black transition-colors duration-200 font-[family-name:var(--font-inter)]"
+                className="flex-1 py-3.5 text-center text-xs tracking-widest uppercase transition-opacity hover:opacity-80"
+                style={{
+                  background: GOLD,
+                  color: "#0a0a0a",
+                  fontFamily: "var(--font-inter)",
+                  fontWeight: 600,
+                }}
               >
-                Garantir Vaga
+                Garantir ingresso
               </Link>
-            </motion.div>
+              <Link
+                href="#lotes"
+                className="flex-1 py-3.5 text-center text-xs tracking-widest uppercase border transition-colors hover:bg-white/5"
+                style={{
+                  borderColor: "rgba(201,169,110,0.5)",
+                  color: GOLD,
+                  fontFamily: "var(--font-inter)",
+                }}
+              >
+                Ver lotes
+              </Link>
+            </>
           )}
         </motion.div>
+
+        {/* Vagas */}
+        {!esgotado && vagasTotal > 0 && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 1.1 }}
+            className="text-[10px] tracking-widest uppercase"
+            style={{ color: "rgba(255,255,255,0.25)" }}
+          >
+            {vagasTotal} {vagasTotal === 1 ? "vaga disponível" : "vagas disponíveis"}
+          </motion.p>
+        )}
       </div>
-    </LampContainer>
+    </section>
   );
 }

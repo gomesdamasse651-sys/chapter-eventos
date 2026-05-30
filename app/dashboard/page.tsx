@@ -151,7 +151,7 @@ export default function Dashboard() {
           <h1 className="text-4xl font-light" style={{ fontFamily: "Playfair Display, Georgia, serif" }}>
             Olá, {nomeUsuario}
           </h1>
-          <p className="text-zinc-500 text-sm tracking-wide mt-1">13 de Junho · Setor de Clubes Sul</p>
+          <p className="text-zinc-500 text-sm tracking-wide mt-1">01 de Agosto · Lago Sul</p>
         </motion.div>
 
         {/* Abas */}

@@ -34,7 +34,7 @@ export default async function Home() {
       <section className="flex flex-col items-center gap-4 py-16 border-t border-zinc-900">
         <p className="text-zinc-600 text-[10px] tracking-widest uppercase">Faltam</p>
         <Countdown />
-        <p className="text-zinc-700 text-xs tracking-widest uppercase mt-2">01 · Ago · 2026</p>
+        <p className="text-zinc-700 text-xs tracking-widest uppercase mt-2">13 · Jun · 2026</p>
       </section>
 
       {/* Descrição */}
@@ -43,19 +43,38 @@ export default async function Home() {
           className="text-zinc-300 leading-relaxed"
           style={{ fontSize: "clamp(1rem,2.5vw,1.2rem)", letterSpacing: "0.04em", fontFamily: "var(--font-playfair)" }}
         >
-          CHAPTER é mais que uma festa.
+          CHAPTER TWO é mais que uma festa.
           <br />
           <span className="text-zinc-500">
-            Uma noite exclusiva, com música e atmosfera única no Lago Sul de Brasília.
+            Uma noite exclusiva, com música e atmosfera única no Setor de Clubes Sul de Brasília.
           </span>
         </p>
+      </section>
+
+      {/* Atrações */}
+      <section className="border-t border-zinc-900 px-6 py-14 max-w-2xl mx-auto w-full flex flex-col gap-8">
+        <p className="text-zinc-600 text-[10px] tracking-widest uppercase text-center">Atrações</p>
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-1 border-b border-zinc-900 pb-6">
+            <p className="text-xs tracking-widest uppercase text-zinc-500">Música</p>
+            <p className="text-white text-lg tracking-wide" style={{ fontFamily: "var(--font-playfair)" }}>
+              DJ Uchoa &amp; DJ Cedric
+            </p>
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-xs tracking-widest uppercase text-zinc-500">Open Bar</p>
+            <p className="text-white text-lg tracking-wide" style={{ fontFamily: "var(--font-playfair)" }}>
+              Vodka · Energético · Chope
+            </p>
+          </div>
+        </div>
       </section>
 
       {/* Footer */}
       <footer className="border-t border-zinc-900 px-6 py-10 mt-auto">
         <div className="max-w-3xl mx-auto flex flex-col gap-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <p className="text-xs tracking-widest uppercase text-zinc-500">Chapter · Lago Sul · Brasília</p>
+            <p className="text-xs tracking-widest uppercase text-zinc-500">Chapter Two · Setor de Clubes Sul · Brasília</p>
             <a href="mailto:empresadamasse651@gmail.com" className="text-zinc-600 text-xs tracking-widest hover:text-white transition-colors">
               empresadamasse651@gmail.com
             </a>

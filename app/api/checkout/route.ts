@@ -5,11 +5,12 @@ import { v4 as uuidv4 } from "uuid";
 const PRECO_SEGURO = 11.9;
 
 export async function POST(req: NextRequest) {
-  const { nome, email, telefone, quantidade, sexo, cupom_id, cupom_desconto, seguro, lote_id, taxa_pct } = await req.json();
+  const { nome, email, telefone, quantidade, sexo, tipo, cupom_id, cupom_desconto, seguro, lote_id, taxa_pct } = await req.json();
 
   if (!sexo || !["F", "M"].includes(sexo)) {
     return NextResponse.json({ error: "Sexo inválido." }, { status: 400 });
   }
+  const isVip = tipo === "vip";
 
   const { data: lote, error: errLote } = await supabaseAdmin
     .from("lotes")
@@ -22,17 +23,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Lote não encontrado." }, { status: 400 });
   }
 
-  const vendidos = sexo === "F" ? lote.vendidos_f : lote.vendidos_m;
-  const limite = sexo === "F" ? lote.limite_f : lote.limite_m;
+  const vendidos = isVip
+    ? (sexo === "F" ? lote.vendidos_vip_f : lote.vendidos_vip_m)
+    : (sexo === "F" ? lote.vendidos_f : lote.vendidos_m);
+  const limite = isVip
+    ? (sexo === "F" ? lote.limite_vip_f : lote.limite_vip_m)
+    : (sexo === "F" ? lote.limite_f : lote.limite_m);
   if (vendidos + quantidade > limite) {
     const restam = limite - vendidos;
     return NextResponse.json(
-      { error: `Só restam ${restam} vaga(s) ${sexo === "F" ? "feminina(s)" : "masculina(s)"} neste lote.` },
+      { error: `Só restam ${restam} vaga(s) ${isVip ? "VIP " : ""}${sexo === "F" ? "feminina(s)" : "masculina(s)"} neste lote.` },
       { status: 409 }
     );
   }
 
-  const preco = sexo === "F" ? lote.preco_f : lote.preco_m;
+  const preco = isVip
+    ? (sexo === "F" ? lote.preco_vip_f : lote.preco_vip_m)
+    : (sexo === "F" ? lote.preco_f : lote.preco_m);
   let subtotal = preco * quantidade;
   if (cupom_id) {
     const pct = (cupom_desconto ?? 10) / 100;
@@ -49,6 +56,7 @@ export async function POST(req: NextRequest) {
     email,
     telefone: telefone || null,
     sexo,
+    tipo: isVip ? "vip" : "normal",
     lote_id: lote.id,
     preco,
     seguro: seguro ?? false,
@@ -72,7 +80,7 @@ export async function POST(req: NextRequest) {
     {
       quantity: quantidade,
       price: Math.round(preco * 100),
-      description: "Ingresso Chapter — 15 de Junho",
+      description: `Ingresso Chapter Two — 13 de Junho${isVip ? " (VIP)" : ""}`,
     },
     ...(seguro
       ? [{ quantity: quantidade, price: Math.round(PRECO_SEGURO * 100), description: "Seguro Reembolsável" }]

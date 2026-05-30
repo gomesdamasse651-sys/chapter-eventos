@@ -23,7 +23,7 @@ export default function NavAnimado() {
       {/* Data + botão entrar */}
       <div className="flex items-center gap-6">
         <span className="hidden sm:block text-[10px] tracking-widest text-zinc-600 font-[family-name:var(--font-inter)] uppercase">
-          01 · AGO · 2026
+          13 · JUN · 2026
         </span>
         <Link
           href="/login"

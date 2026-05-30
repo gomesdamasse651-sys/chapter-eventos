@@ -28,7 +28,7 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM }: Pr
           {...fade(0.2)}
           className="text-xs tracking-[0.45em] text-zinc-500 uppercase font-[family-name:var(--font-inter)]"
         >
-          Uma noite. Um capítulo.
+          Chapter Two · 13 de Junho
         </motion.p>
 
         {/* Title */}
@@ -54,7 +54,7 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM }: Pr
           {...fade(0.5)}
           className="text-zinc-400 text-sm tracking-widest uppercase font-[family-name:var(--font-inter)]"
         >
-          Lago Sul · QI 11 Conjunto 10 · Brasília
+          Setor de Clubes Sul · Brasília
         </motion.p>
 
         {/* Slogan */}
@@ -81,7 +81,7 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM }: Pr
         >
           <div className="text-center">
             <p className="text-zinc-600 text-[10px] tracking-widest uppercase mb-1">Data</p>
-            <p className="text-white text-sm">01 · AGO · 2026</p>
+            <p className="text-white text-sm">13 · JUN · 2026</p>
           </div>
           <div className="w-px h-8 bg-zinc-800" />
           <div className="text-center">

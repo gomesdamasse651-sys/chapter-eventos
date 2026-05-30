@@ -80,6 +80,15 @@ export default function Admin() {
     carregarDados();
   }
 
+  async function deletarCupom(id: string, codigo: string) {
+    if (!window.confirm(`Excluir cupom ${codigo}?`)) return;
+    await fetch("/api/admin/cupons", {
+      method: "DELETE", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    carregarDados();
+  }
+
   async function criarAdmin(e: React.FormEvent) {
     e.preventDefault();
     await fetch("/api/admin/admin-users", {
@@ -464,10 +473,16 @@ export default function Admin() {
                     <td className="py-2 pr-4 text-zinc-300">{c.desconto ?? 10}%</td>
                     <td className="py-2 pr-4">{c.usos}</td>
                     <td className="py-2">
-                      <button onClick={() => toggleCupom(c.id, c.ativo)}
-                        className={`text-xs px-2 py-1 border transition-all ${c.ativo ? "border-green-500 text-green-400 hover:bg-green-500 hover:text-black" : "border-zinc-700 text-zinc-500 hover:border-zinc-500"}`}>
-                        {c.ativo ? "Ativo" : "Inativo"}
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <button onClick={() => toggleCupom(c.id, c.ativo)}
+                          className={`text-xs px-2 py-1 border transition-all ${c.ativo ? "border-green-500 text-green-400 hover:bg-green-500 hover:text-black" : "border-zinc-700 text-zinc-500 hover:border-zinc-500"}`}>
+                          {c.ativo ? "Ativo" : "Inativo"}
+                        </button>
+                        <button onClick={() => deletarCupom(c.id, c.codigo)}
+                          className="text-xs text-red-500 hover:text-red-400 transition-colors">
+                          Excluir
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

@@ -38,7 +38,6 @@ function LinhaIngresso({ label, preco, vagas, loteId, categoria, isVip }: LinhaP
             VIP
           </span>
         )}
-        <span className="text-zinc-600 text-xs">{vagas} vagas</span>
       </div>
       <div className="flex items-center gap-4">
         <span className="text-[#c9a96e] font-light">R$ {preco.toFixed(0)},00</span>
@@ -112,9 +111,6 @@ export default function IngressosClient({ lote }: Props) {
               Lote {lote.numero} — em andamento
             </span>
           </div>
-          {!semVagas && (
-            <span className="text-zinc-600 text-xs">{totalVagas} vagas restantes</span>
-          )}
         </div>
 
         {semVagas ? (

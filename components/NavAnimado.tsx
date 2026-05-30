@@ -27,17 +27,19 @@ export default function NavAnimado() {
         </span>
         <Link
           href="/login"
-          className="text-[10px] uppercase font-[family-name:var(--font-inter)] transition-colors"
+          className="uppercase font-[family-name:var(--font-inter)] transition-colors"
           style={{
-            background: "rgba(255,255,255,0.15)",
-            border: "1px solid rgba(255,255,255,0.7)",
-            color: "#ffffff",
-            fontWeight: 600,
-            letterSpacing: "0.1em",
-            padding: "8px 20px",
+            background: "#c9a96e",
+            border: "none",
+            color: "#0a0a0a",
+            fontWeight: 700,
+            fontSize: "13px",
+            letterSpacing: "0.15em",
+            padding: "10px 24px",
+            borderRadius: "2px",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.25)")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.15)")}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "#dbbf82")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "#c9a96e")}
         >
           Entrar
         </Link>

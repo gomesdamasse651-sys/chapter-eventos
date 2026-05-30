@@ -205,18 +205,6 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM, lote
           )}
         </motion.div>
 
-        {/* Vagas */}
-        {!esgotado && vagasTotal > 0 && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 1.1 }}
-            className="text-[10px] tracking-widest uppercase"
-            style={{ color: "rgba(255,255,255,0.25)" }}
-          >
-            {vagasTotal} {vagasTotal === 1 ? "vaga disponível" : "vagas disponíveis"}
-          </motion.p>
-        )}
       </div>
     </section>
   );

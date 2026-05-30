@@ -16,7 +16,7 @@ type Ingresso = {
 };
 type Cupom = { id: string; codigo: string; criado_por: string; usos: number; ativo: boolean; desconto: number };
 type Lote = { numero: number; preco_f: number; preco_m: number; vendidos_f: number; vendidos_m: number; limite_f: number; limite_m: number; ativo: boolean };
-type AdminUser = { id: string; nome: string; email: string; criado_em: string };
+type AdminUser = { id: string; nome: string; email: string; adicionado_em: string; user_id: string | null };
 
 type Secao = "visao-geral" | "ingressos" | "cupons" | "admins" | "validador";
 
@@ -30,6 +30,7 @@ export default function Admin() {
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [novoCupom, setNovoCupom] = useState({ codigo: "", criado_por: "", desconto: 10 });
   const [novoAdmin, setNovoAdmin] = useState({ nome: "", email: "" });
+  const [senhaTemporariaAdmin, setSenhaTemporariaAdmin] = useState<{ nome: string; email: string; senha: string } | null>(null);
   const [loadingExport, setLoadingExport] = useState(false);
   const [filtroStatus, setFiltroStatus] = useState("");
   const [filtroSexo, setFiltroSexo] = useState("");
@@ -91,10 +92,14 @@ export default function Admin() {
 
   async function criarAdmin(e: React.FormEvent) {
     e.preventDefault();
-    await fetch("/api/admin/admin-users", {
+    const res = await fetch("/api/admin/admin-users", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify(novoAdmin),
     });
+    const d = await res.json() as { senha_temporaria?: string; error?: string };
+    if (res.ok && d.senha_temporaria) {
+      setSenhaTemporariaAdmin({ nome: novoAdmin.nome, email: novoAdmin.email, senha: d.senha_temporaria });
+    }
     setNovoAdmin({ nome: "", email: "" });
     carregarDados();
   }
@@ -512,7 +517,15 @@ export default function Admin() {
                 Adicionar
               </button>
             </form>
-            <p className="text-zinc-600 text-xs">Todos os administradores usam a mesma senha de acesso configurada no sistema.</p>
+            {senhaTemporariaAdmin && (
+              <div className="border border-emerald-800 bg-emerald-950/30 p-4 flex flex-col gap-2">
+                <p className="text-emerald-400 text-xs tracking-widest uppercase">Admin criado — anote a senha agora</p>
+                <p className="text-white text-sm"><strong>{senhaTemporariaAdmin.nome}</strong> · {senhaTemporariaAdmin.email}</p>
+                <p className="text-zinc-300 text-xs">Senha temporária: <span className="font-mono text-white bg-zinc-800 px-2 py-0.5">{senhaTemporariaAdmin.senha}</span></p>
+                <p className="text-zinc-600 text-xs">Esta senha não será exibida novamente. Um email foi enviado ao novo admin.</p>
+                <button onClick={() => setSenhaTemporariaAdmin(null)} className="text-xs text-zinc-500 hover:text-white transition-colors self-start mt-1">Fechar</button>
+              </div>
+            )}
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-zinc-600 text-xs tracking-widest uppercase border-b border-zinc-900">
@@ -527,7 +540,7 @@ export default function Admin() {
                   <tr key={a.id} className="border-b border-zinc-900">
                     <td className="py-2 pr-4">{a.nome}</td>
                     <td className="py-2 pr-4 text-zinc-500 text-xs">{a.email}</td>
-                    <td className="py-2 pr-4 text-zinc-600 text-xs">{new Date(a.criado_em).toLocaleDateString("pt-BR")}</td>
+                    <td className="py-2 pr-4 text-zinc-600 text-xs">{new Date(a.adicionado_em).toLocaleDateString("pt-BR")}</td>
                     <td className="py-2">
                       <button onClick={() => removerAdmin(a.id)}
                         className="text-xs text-zinc-600 hover:text-red-400 transition-colors">

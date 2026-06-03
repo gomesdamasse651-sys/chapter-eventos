@@ -26,19 +26,19 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Chapter — 01 de Agosto",
-  description: "Garanta seu ingresso. Lago Sul · Brasília.",
+  title: "Chapter — 04 de Julho",
+  description: "Garanta seu ingresso. A definir · Brasília.",
   openGraph: {
-    title: "CHAPTER — 01 de Agosto",
-    description: "Garanta seu ingresso. Lago Sul · Brasília.",
+    title: "CHAPTER — 04 de Julho",
+    description: "Garanta seu ingresso. A definir · Brasília.",
     type: "website",
     locale: "pt_BR",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Chapter — 01 de Agosto" }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Chapter — 04 de Julho" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CHAPTER — 01 de Agosto",
-    description: "Garanta seu ingresso. Lago Sul · Brasília.",
+    title: "CHAPTER — 04 de Julho",
+    description: "Garanta seu ingresso. A definir · Brasília.",
     images: ["/og-image.png"],
   },
 };

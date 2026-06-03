@@ -81,7 +81,7 @@ function LoginForm() {
           <Link href="/" className="text-3xl font-bold tracking-tighter hover:opacity-80 transition-opacity">
             CHAPTER
           </Link>
-          <p className="text-zinc-600 text-xs tracking-widest uppercase">01 de Agosto</p>
+          <p className="text-zinc-600 text-xs tracking-widest uppercase">04 de Julho</p>
         </div>
 
         {/* Abas */}

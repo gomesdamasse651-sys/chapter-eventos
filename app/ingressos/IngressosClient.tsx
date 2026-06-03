@@ -34,13 +34,13 @@ function LinhaIngresso({ label, preco, vagas, loteId, categoria, isVip }: LinhaP
       <div className="flex items-center gap-3">
         <span className="text-white text-sm">{label}</span>
         {isVip && (
-          <span className="text-[10px] tracking-widest uppercase border border-[#c9a96e] text-[#c9a96e] px-2 py-0.5">
+          <span className="text-[10px] tracking-widest uppercase border border-[#a8ff78] text-[#a8ff78] px-2 py-0.5">
             VIP
           </span>
         )}
       </div>
       <div className="flex items-center gap-4">
-        <span className="text-[#c9a96e] font-light">R$ {preco.toFixed(0)},00</span>
+        <span className="text-[#a8ff78] font-light">R$ {preco.toFixed(0)},00</span>
         {vagas > 0 ? (
           <Link
             href={`/comprar?lote_id=${loteId}&categoria=${categoria}`}
@@ -96,8 +96,8 @@ export default function IngressosClient({ lote }: Props) {
           <p className="text-xs tracking-[0.4em] text-zinc-500 uppercase mb-2">
             Ingressos
           </p>
-          <h1 className="text-4xl font-bold tracking-tighter">CHAPTER TWO</h1>
-          <p className="text-zinc-500 text-sm mt-1">01 de Agosto · Lago Sul</p>
+          <h1 className="text-4xl font-bold tracking-tighter">CHAPTER</h1>
+          <p className="text-zinc-500 text-sm mt-1">04 de Julho · A definir</p>
         </div>
 
         {/* Badge lote ativo */}
@@ -145,9 +145,9 @@ export default function IngressosClient({ lote }: Props) {
             </div>
 
             {/* VIP */}
-            <div className="border border-[#c9a96e]/20 bg-[#0a0f0d]">
-              <div className="px-4 py-3 border-b border-[#c9a96e]/20">
-                <p className="text-xs tracking-widest uppercase text-[#c9a96e]">VIP</p>
+            <div className="border border-[#a8ff78]/20 bg-[#0a0f0d]">
+              <div className="px-4 py-3 border-b border-[#a8ff78]/20">
+                <p className="text-xs tracking-widest uppercase text-[#a8ff78]">VIP</p>
               </div>
               <div className="px-4">
                 <LinhaIngresso

@@ -66,8 +66,8 @@ export default async function ComprarPage({ searchParams }: Props) {
 
         <div>
           <p className="text-xs tracking-[0.4em] text-zinc-500 uppercase mb-2">Ingresso</p>
-          <h1 className="text-4xl font-bold tracking-tighter">CHAPTER TWO</h1>
-          <p className="text-zinc-500 text-sm mt-1">01 de Agosto · Lago Sul</p>
+          <h1 className="text-4xl font-bold tracking-tighter">CHAPTER</h1>
+          <p className="text-zinc-500 text-sm mt-1">04 de Julho · A definir</p>
           <p className="text-zinc-600 text-xs mt-1 tracking-widest uppercase">
             Lote {l.numero}
           </p>

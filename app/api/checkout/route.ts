@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
     {
       quantity: 1,
       price: Math.round(precoReais * 100),
-      description: `Ingresso Chapter Two — 01/08/2026 (${cat.replace("_", " ")})`,
+      description: `Ingresso Chapter — 04/07/2026 (${cat.replace("_", " ")})`,
     },
   ];
 

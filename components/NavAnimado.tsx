@@ -23,13 +23,13 @@ export default function NavAnimado() {
       {/* Data + botão entrar */}
       <div className="flex items-center gap-6">
         <span className="hidden sm:block text-[10px] tracking-widest text-zinc-600 font-[family-name:var(--font-inter)] uppercase">
-          01 · AGO · 2026
+          04 · JUL · 2026
         </span>
         <Link
           href="/login"
           className="uppercase font-[family-name:var(--font-inter)] transition-colors"
           style={{
-            background: "#c9a96e",
+            background: "#a8ff78",
             border: "none",
             color: "#0a0a0a",
             fontWeight: 700,
@@ -38,8 +38,8 @@ export default function NavAnimado() {
             padding: "10px 24px",
             borderRadius: "2px",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "#dbbf82")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "#c9a96e")}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "#c4ff9a")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "#a8ff78")}
         >
           Entrar
         </Link>

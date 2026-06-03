@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const EVENTO = new Date("2026-08-01T22:00:00-03:00");
-const GOLD = "#c9a96e";
+const EVENTO = new Date("2026-07-04T22:00:00-03:00");
+const GOLD = "#a8ff78";
 
 interface Props {
   vagasTotal: number;
@@ -40,7 +40,7 @@ function Pad({ n, label }: { n: number; label: string }) {
       >
         {String(n).padStart(2, "0")}
       </span>
-      <span className="text-[9px] tracking-[0.3em] uppercase" style={{ color: "rgba(201,169,110,0.5)" }}>
+      <span className="text-[9px] tracking-[0.3em] uppercase" style={{ color: "rgba(168,255,120,0.5)" }}>
         {label}
       </span>
     </div>
@@ -59,7 +59,7 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM, lote
       {/* Background */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <img
-          src="/images/chapter-two-poster.png"
+          src="/images/chapter-poster.png"
           alt=""
           className="w-full h-full object-cover"
           style={{ animation: "slowZoom 20s ease-in-out infinite alternate" }}
@@ -78,7 +78,7 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM, lote
         <div className="absolute top-24 right-6 z-10 text-right">
           <div
             className="text-[9px] tracking-[0.35em] uppercase mb-1"
-            style={{ color: "rgba(201,169,110,0.6)" }}
+            style={{ color: "rgba(168,255,120,0.6)" }}
           >
             Lote {loteNumero}
           </div>
@@ -109,16 +109,6 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM, lote
           >
             CHAPTER
           </h1>
-          <h2
-            style={{
-              fontFamily: "var(--font-bebas)",
-              fontSize: "clamp(48px,9vw,96px)",
-              letterSpacing: "0.25em",
-              color: GOLD,
-            }}
-          >
-            TWO
-          </h2>
         </motion.div>
 
         {/* Date + location */}
@@ -129,7 +119,7 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM, lote
           className="text-xs tracking-[0.4em] uppercase"
           style={{ color: "rgba(255,255,255,0.45)", fontFamily: "var(--font-inter)" }}
         >
-          01 de Agosto · Lago Sul · Brasília
+          04 de Julho · 22h · A definir · Brasília
         </motion.p>
 
         {/* Countdown */}
@@ -152,12 +142,12 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM, lote
           animate={{ opacity: 1 }}
           transition={{ duration: 0.7, delay: 0.8 }}
           className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-[10px] tracking-[0.3em] uppercase"
-          style={{ color: "rgba(201,169,110,0.6)" }}
+          style={{ color: "rgba(168,255,120,0.6)" }}
         >
-          {["Open Bar", "DJ Uchoa & Cedric", "Área VIP"].map((p, i) => (
+          {["Open Bar", "Área VIP"].map((p, i) => (
             <span key={p} className="flex items-center gap-4">
               {p}
-              {i < 2 && <span style={{ color: "rgba(201,169,110,0.3)" }}>·</span>}
+              {i < 1 && <span style={{ color: "rgba(168,255,120,0.3)" }}>·</span>}
             </span>
           ))}
         </motion.div>
@@ -172,7 +162,7 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM, lote
           {esgotado ? (
             <span
               className="w-full py-3.5 text-center text-xs tracking-widest uppercase border cursor-not-allowed"
-              style={{ borderColor: "rgba(201,169,110,0.3)", color: "rgba(201,169,110,0.4)" }}
+              style={{ borderColor: "rgba(168,255,120,0.3)", color: "rgba(201,169,110,0.4)" }}
             >
               Esgotado
             </span>
@@ -194,7 +184,7 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM, lote
                 href="#lotes"
                 className="flex-1 py-3.5 text-center text-xs tracking-widest uppercase border transition-colors hover:bg-white/5"
                 style={{
-                  borderColor: "rgba(201,169,110,0.5)",
+                  borderColor: "rgba(168,255,120,0.5)",
                   color: GOLD,
                   fontFamily: "var(--font-inter)",
                 }}

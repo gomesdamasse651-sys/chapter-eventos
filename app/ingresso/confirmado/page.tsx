@@ -67,8 +67,8 @@ export default async function ConfirmadoPage({ searchParams }: Props) {
           <p className="text-xs tracking-[0.4em] text-zinc-500 uppercase mb-2">
             Pagamento confirmado
           </p>
-          <h1 className="text-3xl font-bold tracking-tighter">CHAPTER TWO</h1>
-          <p className="text-zinc-500 text-sm mt-1">01 de Agosto · Lago Sul</p>
+          <h1 className="text-3xl font-bold tracking-tighter">CHAPTER</h1>
+          <p className="text-zinc-500 text-sm mt-1">04 de Julho · A definir</p>
         </div>
 
         <div className="bg-white p-4 rounded">

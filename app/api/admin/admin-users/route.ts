@@ -57,10 +57,10 @@ export async function POST(req: NextRequest) {
     await resend.emails.send({
       from: "Chapter <noreply@resend.dev>",
       to: email,
-      subject: "Acesso ao painel admin — Chapter Two",
+      subject: "Acesso ao painel admin — Chapter",
       html: `
         <p>Olá, ${nome}!</p>
-        <p>Você foi adicionado como administrador do Chapter Two.</p>
+        <p>Você foi adicionado como administrador do Chapter.</p>
         <p><strong>Email:</strong> ${email}<br/>
         <strong>Senha temporária:</strong> ${SENHA_INICIAL}</p>
         <p>Acesse: <a href="${APP_URL}/admin/login">${APP_URL}/admin/login</a></p>

@@ -143,6 +143,13 @@ export default function Dashboard() {
           >
             Reembolso
           </Link>
+          <Link
+            href="/trocar-senha"
+            className="text-xs tracking-widest uppercase text-zinc-500 hover:text-white transition-colors border px-4 py-2"
+            style={{ borderColor: "rgba(255,255,255,0.1)" }}
+          >
+            Alterar senha
+          </Link>
           <button
             onClick={logout}
             className="text-xs tracking-widest uppercase text-zinc-500 hover:text-red-400 transition-colors border px-4 py-2"

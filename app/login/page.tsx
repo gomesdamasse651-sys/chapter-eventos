@@ -18,6 +18,8 @@ function LoginForm() {
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
   const [loading, setLoading] = useState(false);
+  const [esqueci, setEsqueci] = useState(false);
+  const [emailRecupera, setEmailRecupera] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -49,6 +51,22 @@ function LoginForm() {
     const redirect = searchParams.get("redirect") ?? "/dashboard";
     router.push(redirect);
     router.refresh();
+    setLoading(false);
+  }
+
+  async function handleEsqueci(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setErro("");
+    setSucesso("");
+    const { error } = await supabase.auth.resetPasswordForEmail(emailRecupera, {
+      redirectTo: "https://chapter-eventos.vercel.app/trocar-senha",
+    });
+    if (error) {
+      setErro("Erro ao enviar email. Verifique o endereço.");
+    } else {
+      setSucesso("Email enviado! Verifique sua caixa de entrada.");
+    }
     setLoading(false);
   }
 
@@ -130,6 +148,33 @@ function LoginForm() {
               className="text-zinc-600 text-xs tracking-widest uppercase hover:text-zinc-400 transition-colors text-center">
               {modo === "login" ? "Criar conta" : "Já tenho conta"}
             </button>
+
+            {modo === "login" && !esqueci && (
+              <button type="button" onClick={() => { setEsqueci(true); setErro(""); setSucesso(""); }}
+                className="text-zinc-700 text-xs tracking-widest uppercase hover:text-zinc-500 transition-colors text-center">
+                Esqueci minha senha
+              </button>
+            )}
+
+            {modo === "login" && esqueci && (
+              <form onSubmit={handleEsqueci} className="flex flex-col gap-3 border-t border-zinc-900 pt-4">
+                <p className="text-zinc-500 text-xs tracking-widest uppercase text-center">Recuperar senha</p>
+                <input
+                  type="email" required value={emailRecupera}
+                  onChange={(e) => setEmailRecupera(e.target.value)}
+                  className="bg-transparent border border-zinc-800 px-4 py-3 text-white focus:outline-none focus:border-zinc-500 transition-colors"
+                  placeholder="seu@email.com"
+                />
+                <button type="submit" disabled={loading}
+                  className="py-3 bg-white text-black text-sm tracking-widest uppercase hover:bg-zinc-200 transition-all disabled:opacity-50">
+                  {loading ? "..." : "Enviar link"}
+                </button>
+                <button type="button" onClick={() => { setEsqueci(false); setErro(""); setSucesso(""); }}
+                  className="text-zinc-700 text-xs tracking-widest uppercase hover:text-zinc-500 transition-colors text-center">
+                  Cancelar
+                </button>
+              </form>
+            )}
           </form>
         )}
 

@@ -59,7 +59,7 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM, lote
       {/* Background */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <img
-          src="/images/chapter-poster.png"
+          src="/images/chapter-bg.jpg"
           alt=""
           className="w-full h-full object-cover"
           style={{ animation: "slowZoom 20s ease-in-out infinite alternate" }}

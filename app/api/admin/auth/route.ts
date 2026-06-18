@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
   const { data: adminUser, error: adminError } = await supabaseAdmin
     .from("admin_users")
     .select("id, primeiro_acesso")
-    .eq("email", email.toLowerCase().trim())
+    .eq("user_id", authData.user.id)
     .single();
 
   console.log("[admin/auth] admin_users lookup:", {

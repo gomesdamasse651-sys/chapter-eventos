@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Envia email com QR codes
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "https://chapter-eventos.vercel.app";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "https://chapterbsb.vercel.app";
   const primeiroIngresso = ingressos[0];
 
   const qrCodesHtml = updates

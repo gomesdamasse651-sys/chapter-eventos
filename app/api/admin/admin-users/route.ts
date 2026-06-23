@@ -4,7 +4,7 @@ import { checkAdminAuth } from "@/lib/admin-auth";
 
 const APP_URL =
   process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
-  "https://chapter-eventos.vercel.app";
+  "https://chapterbsb.vercel.app";
 
 export async function GET(req: NextRequest) {
   if (!checkAdminAuth(req)) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });

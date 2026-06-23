@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
   const qrCode = (ingresso.qr_code as string | null) ?? uuidv4();
   const appUrl =
     process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
-    "https://chapter-eventos.vercel.app";
+    "https://chapterbsb.vercel.app";
 
   await supabaseAdmin
     .from("ingressos")

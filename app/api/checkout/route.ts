@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
 
   const appUrl =
     process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
-    "https://chapter-eventos.vercel.app";
+    "https://chapterbsb.vercel.app";
 
   // Ingresso gratuito — pula InfinitePay
   if (totalReais === 0) {

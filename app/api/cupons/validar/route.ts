@@ -24,7 +24,6 @@ export async function POST(req: NextRequest) {
     .from("cupons")
     .select("id, codigo, desconto_percentual, ativo")
     .ilike("codigo", codigo.trim())
-    .eq("ativo", true)
     .single();
 
   if (!cupom) {

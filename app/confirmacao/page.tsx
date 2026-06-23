@@ -55,8 +55,8 @@ export default async function Confirmacao({ searchParams }: Props) {
       <div className="w-full max-w-md flex flex-col items-center gap-8">
         <div className="text-center">
           <p className="text-xs tracking-[0.4em] text-zinc-500 uppercase mb-2">Chapter</p>
-          <h1 className="text-4xl font-bold tracking-tighter">04 de Julho</h1>
-          <p className="text-zinc-500 text-sm mt-1">A definir · Brasília</p>
+          <h1 className="text-4xl font-bold tracking-tighter">15 de Agosto</h1>
+          <p className="text-zinc-500 text-sm mt-1">Acadêmicos da Asa Norte · Brasília</p>
         </div>
 
         {pendentes.length > 0 && pagos.length === 0 && (

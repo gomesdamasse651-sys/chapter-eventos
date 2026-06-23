@@ -97,7 +97,7 @@ export default function IngressosClient({ lote }: Props) {
             Ingressos
           </p>
           <h1 className="text-4xl font-bold tracking-tighter">CHAPTER</h1>
-          <p className="text-zinc-500 text-sm mt-1">04 de Julho · A definir</p>
+          <p className="text-zinc-500 text-sm mt-1">15 de Agosto · Acadêmicos da Asa Norte</p>
         </div>
 
         {/* Badge lote ativo */}

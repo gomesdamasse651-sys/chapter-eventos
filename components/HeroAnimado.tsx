@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const EVENTO = new Date("2026-07-04T22:00:00-03:00");
+const EVENTO = new Date("2026-08-15T21:00:00-03:00");
 const GOLD = "#a8ff78";
 
 interface Props {
@@ -119,7 +119,7 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM, lote
           className="text-xs tracking-[0.4em] uppercase"
           style={{ color: "rgba(255,255,255,0.45)", fontFamily: "var(--font-inter)" }}
         >
-          04 de Julho · 22h · A definir · Brasília
+          15 de Agosto · 21h · Acadêmicos da Asa Norte · Brasília
         </motion.p>
 
         {/* Countdown */}
@@ -144,12 +144,7 @@ export default function HeroAnimado({ vagasTotal, esgotado, precoF, precoM, lote
           className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-[10px] tracking-[0.3em] uppercase"
           style={{ color: "rgba(168,255,120,0.6)" }}
         >
-          {["Open Bar", "Área VIP"].map((p, i) => (
-            <span key={p} className="flex items-center gap-4">
-              {p}
-              {i < 1 && <span style={{ color: "rgba(168,255,120,0.3)" }}>·</span>}
-            </span>
-          ))}
+          <span>OPEN BAR · SALMON PESSOA &amp; MAURÍCIO · ÁREA VIP</span>
         </motion.div>
 
         {/* CTAs */}

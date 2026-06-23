@@ -33,7 +33,7 @@ export default function ConfirmadoPending({ ingressoId }: Props) {
             Aguardando pagamento
           </p>
           <h1 className="text-3xl font-bold tracking-tighter">CHAPTER</h1>
-          <p className="text-zinc-500 text-sm mt-1">04 de Julho · A definir</p>
+          <p className="text-zinc-500 text-sm mt-1">15 de Agosto · Acadêmicos da Asa Norte</p>
         </div>
 
         <div className="flex flex-col items-center gap-4">

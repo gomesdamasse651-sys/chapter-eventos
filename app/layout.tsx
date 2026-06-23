@@ -26,19 +26,19 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Chapter — 04 de Julho",
-  description: "Garanta seu ingresso. A definir · Brasília.",
+  title: "Chapter — 15 de Agosto",
+  description: "Garanta seu ingresso. Acadêmicos da Asa Norte · Brasília.",
   openGraph: {
-    title: "CHAPTER — 04 de Julho",
-    description: "Garanta seu ingresso. A definir · Brasília.",
+    title: "CHAPTER — 15 de Agosto",
+    description: "Garanta seu ingresso. Acadêmicos da Asa Norte · Brasília.",
     type: "website",
     locale: "pt_BR",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Chapter — 04 de Julho" }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Chapter — 15 de Agosto" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CHAPTER — 04 de Julho",
-    description: "Garanta seu ingresso. A definir · Brasília.",
+    title: "CHAPTER — 15 de Agosto",
+    description: "Garanta seu ingresso. Acadêmicos da Asa Norte · Brasília.",
     images: ["/og-image.png"],
   },
 };

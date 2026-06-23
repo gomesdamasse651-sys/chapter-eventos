@@ -61,7 +61,7 @@ export default async function Home() {
       <footer className="border-t border-zinc-900 px-6 py-10 mt-auto">
         <div className="max-w-3xl mx-auto flex flex-col gap-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <p className="text-xs tracking-widest uppercase text-zinc-500">Chapter · 04 de Julho · A definir · Brasília</p>
+            <p className="text-xs tracking-widest uppercase text-zinc-500">Chapter · 15 de Agosto · Acadêmicos da Asa Norte · Brasília</p>
             <a href="mailto:empresadamasse651@gmail.com" className="text-zinc-600 text-xs tracking-widest hover:text-white transition-colors">
               empresadamasse651@gmail.com
             </a>

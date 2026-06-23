@@ -1,46 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { createClient } from "@supabase/supabase-js";
 
-// signInWithPassword requer anon key — service role não suporta esse método
-const supabaseAnon = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
+// Rota legada mantida apenas para setar o cookie admin_auth.
+// O signInWithPassword agora é feito no frontend (browser client).
+// Espera receber o JWT do usuário já autenticado.
 export async function POST(req: NextRequest) {
-  const { email, senha } = await req.json() as { email: string; senha: string };
+  const { token } = await req.json() as { token: string };
 
-  if (!email || !senha) {
-    return NextResponse.json({ error: "Email e senha obrigatórios." }, { status: 400 });
+  if (!token) {
+    return NextResponse.json({ error: "Token ausente." }, { status: 400 });
   }
 
-  // Autentica via Supabase Auth (anon key — service role não suporta signInWithPassword)
-  const { data: authData, error: authError } = await supabaseAnon.auth.signInWithPassword({
-    email: email.toLowerCase().trim(),
-    password: senha,
-  });
+  const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
 
-  console.log("[admin/auth] signInWithPassword result:", {
-    user: authData?.user?.id ?? null,
-    error: authError ? JSON.stringify(authError) : null,
-  });
-
-  if (authError || !authData.user) {
-    return NextResponse.json({ error: "Credenciais inválidas." }, { status: 401 });
+  if (userError || !user) {
+    return NextResponse.json({ error: "Token inválido." }, { status: 401 });
   }
 
-  // Verifica se está na tabela admin_users
-  const { data: adminUser, error: adminError } = await supabaseAdmin
+  const { data: adminUser } = await supabaseAdmin
     .from("admin_users")
     .select("id, primeiro_acesso")
-    .eq("user_id", authData.user.id)
+    .eq("user_id", user.id)
     .single();
-
-  console.log("[admin/auth] admin_users lookup:", {
-    found: !!adminUser,
-    error: adminError ? JSON.stringify(adminError) : null,
-  });
 
   if (!adminUser) {
     return NextResponse.json({ error: "Acesso não autorizado." }, { status: 403 });

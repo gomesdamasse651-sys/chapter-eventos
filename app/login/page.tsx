@@ -75,10 +75,23 @@ function LoginForm() {
     setLoading(true);
     setErro("");
 
+    // 1. Autentica via browser client
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email: emailAdmin.toLowerCase().trim(),
+      password: senha,
+    });
+
+    if (authError || !authData.session) {
+      setErro("Email ou senha incorretos.");
+      setLoading(false);
+      return;
+    }
+
+    // 2. Verifica se é admin e seta cookie
     const res = await fetch("/api/admin/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: emailAdmin, senha }),
+      body: JSON.stringify({ token: authData.session.access_token }),
     });
 
     if (res.ok) {
@@ -86,7 +99,8 @@ function LoginForm() {
       router.refresh();
     } else {
       const json = await res.json().catch(() => ({}));
-      setErro(json.error ?? "Credenciais inválidas.");
+      await supabase.auth.signOut();
+      setErro(json.error ?? "Acesso não autorizado.");
       setLoading(false);
     }
   }

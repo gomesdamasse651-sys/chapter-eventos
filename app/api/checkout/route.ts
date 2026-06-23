@@ -87,12 +87,12 @@ export async function POST(req: NextRequest) {
   if (codigo_cupom) {
     const { data: cupom } = await supabaseAdmin
       .from("cupons")
-      .select("id, desconto_percentual, ativo")
+      .select("id, desconto, ativo")
       .ilike("codigo", codigo_cupom.trim())
       .single();
 
     if (cupom) {
-      const percentual = cupom.desconto_percentual as number;
+      const percentual = cupom.desconto as number;
       descontoFinal = Math.round(precoReais * (percentual / 100) * 100) / 100;
       cupomId = cupom.id as string;
     }

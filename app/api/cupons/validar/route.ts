@@ -20,17 +20,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ valido: false }, { status: 400 });
   }
 
-  const { data: cupom } = await supabaseAdmin
+  const { data: cupom, error: cupomError } = await supabaseAdmin
     .from("cupons")
-    .select("id, codigo, desconto_percentual, ativo")
+    .select("id, codigo, desconto, ativo")
     .ilike("codigo", codigo.trim())
     .single();
+
+  console.log("[cupons/validar] query result:", { cupom, error: cupomError });
 
   if (!cupom) {
     return NextResponse.json({ valido: false });
   }
 
-  const desconto_percentual = cupom.desconto_percentual as number;
+  const desconto_percentual = cupom.desconto as number;
   const desconto = Math.round(preco * (desconto_percentual / 100) * 100) / 100;
   const preco_final = Math.max(0, preco - desconto);
 

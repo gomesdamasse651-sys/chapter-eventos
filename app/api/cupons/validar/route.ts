@@ -34,7 +34,8 @@ export async function POST(req: NextRequest) {
 
   const desconto_percentual = cupom.desconto as number;
   const desconto = Math.round(preco * (desconto_percentual / 100) * 100) / 100;
-  const preco_final = Math.max(0, preco - desconto);
+  const preco_final_raw = Math.max(0, preco - desconto);
+  const preco_final = preco_final_raw < 1 ? 0 : preco_final_raw;
 
   return NextResponse.json({
     valido: true,

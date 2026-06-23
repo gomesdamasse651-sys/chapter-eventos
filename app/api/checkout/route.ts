@@ -100,13 +100,60 @@ export async function POST(req: NextRequest) {
     void descontoCliente; // cliente enviou mas não confiamos
   }
 
-  const precoComDesconto = Math.max(0, precoReais - descontoFinal);
+  const precoComDesconto_raw = Math.max(0, precoReais - descontoFinal);
+  const precoComDesconto = precoComDesconto_raw < 1 ? 0 : precoComDesconto_raw;
   const totalReais = precoComDesconto + (seguro_reembolso ? PRECO_SEGURO_REAIS : 0);
-  const totalCentavos = Math.round(totalReais * 100);
 
   const orderNsu = `chapter-${uuidv4()}`;
-
   const sexo = cat.startsWith("masc") ? "M" : "F";
+
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
+    "https://chapter-eventos.vercel.app";
+
+  // Ingresso gratuito — pula InfinitePay
+  if (totalReais === 0) {
+    const qrCode = crypto.randomUUID();
+
+    const { data: ingresso, error: errInsert } = await supabaseAdmin
+      .from("ingressos")
+      .insert({
+        nome,
+        email,
+        telefone: telefone || null,
+        sexo,
+        lote_id: lote.id,
+        categoria: cat,
+        seguro: seguro_reembolso,
+        seguro_reembolso,
+        preco: 0,
+        status: "pago",
+        qr_code: qrCode,
+        order_nsu: orderNsu,
+        paid_at: new Date().toISOString(),
+      })
+      .select("id")
+      .single();
+
+    if (errInsert || !ingresso) {
+      console.error("INSERT ERROR (gratuito):", JSON.stringify(errInsert));
+      return NextResponse.json({ error: "Erro ao registrar pedido." }, { status: 500 });
+    }
+
+    await incrementarVendido(lote.id as number, cat);
+
+    if (cupomId) {
+      await supabaseAdmin.rpc("increment_cupom_usos", { cupom_id: cupomId });
+    }
+
+    return NextResponse.json({
+      checkout_url: `${appUrl}/ingresso/confirmado?id=${ingresso.id}`,
+      order_nsu: orderNsu,
+    });
+  }
+
+  // Preço mínimo R$1,00 para InfinitePay
+  const totalParaPagamento = Math.max(1, totalReais);
 
   // Cria ingresso pendente
   const { data: ingresso, error: errInsert } = await supabaseAdmin
@@ -137,19 +184,16 @@ export async function POST(req: NextRequest) {
     await supabaseAdmin.rpc("increment_cupom_usos", { cupom_id: cupomId });
   }
 
-  const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
-    "https://chapter-eventos.vercel.app";
-
   const redirectUrl = `${appUrl}/ingresso/confirmado?id=${ingresso.id}`;
   const webhookUrl = `${appUrl}/api/webhook/infinitepay`;
-
   const isHttps = appUrl.startsWith("https://");
+
+  const precoIngressoParaPagamento = Math.max(100, Math.round(precoComDesconto * 100));
 
   const items: { quantity: number; price: number; description: string }[] = [
     {
       quantity: 1,
-      price: Math.round(precoComDesconto * 100),
+      price: precoIngressoParaPagamento,
       description: `Ingresso Chapter — 15/08/2026 (${cat.replace("_", " ")})`,
     },
   ];
@@ -193,5 +237,6 @@ export async function POST(req: NextRequest) {
   const checkoutUrl =
     (ipData.url ?? ipData.link ?? ipData.checkout_url) as string | undefined;
 
+  void totalParaPagamento; // usado implicitamente via items
   return NextResponse.json({ checkout_url: checkoutUrl, order_nsu: orderNsu });
 }

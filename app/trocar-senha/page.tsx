@@ -19,15 +19,23 @@ function TrocarSenhaForm() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // O Supabase injeta os tokens na URL como hash (#access_token=...)
-    // createBrowserClient detecta e processa automaticamente ao chamar getSession
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    async function init() {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const access_token = hashParams.get("access_token");
+      const refresh_token = hashParams.get("refresh_token");
+
+      if (access_token) {
+        await supabase.auth.setSession({ access_token, refresh_token: refresh_token || "" });
+      }
+
+      const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         setPronto(true);
       } else {
         setErro("Link inválido ou expirado. Solicite um novo.");
       }
-    });
+    }
+    init();
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {

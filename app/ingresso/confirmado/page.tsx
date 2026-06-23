@@ -4,7 +4,7 @@ import Link from "next/link";
 import ConfirmadoPending from "./ConfirmadoPending";
 
 interface Props {
-  searchParams: Promise<{ id?: string }>;
+  searchParams: Promise<{ id?: string; transaction_id?: string }>;
 }
 
 type IngressoStatus = "pendente" | "pago" | "cancelado";
@@ -30,17 +30,33 @@ const CATEGORIA_LABEL: Record<string, string> = {
 export const revalidate = 0;
 
 export default async function ConfirmadoPage({ searchParams }: Props) {
-  const { id } = await searchParams;
+  const { id, transaction_id } = await searchParams;
 
-  if (!id) redirect("/ingressos");
+  if (!id && !transaction_id) redirect("/ingressos");
 
-  const { data: ingresso, error } = await supabaseAdmin
-    .from("ingressos")
-    .select("id, nome, email, status, qr_code, categoria, preco, lote_id")
-    .eq("id", id)
-    .single();
+  let ingresso = null;
 
-  if (error || !ingresso) redirect("/ingressos");
+  // Tenta buscar por transaction_id primeiro se fornecido
+  if (transaction_id) {
+    const { data } = await supabaseAdmin
+      .from("ingressos")
+      .select("id, nome, email, status, qr_code, categoria, preco, lote_id")
+      .eq("transaction_nsu", transaction_id)
+      .single();
+    ingresso = data;
+  }
+
+  // Fallback: busca por id
+  if (!ingresso && id) {
+    const { data } = await supabaseAdmin
+      .from("ingressos")
+      .select("id, nome, email, status, qr_code, categoria, preco, lote_id")
+      .eq("id", id)
+      .single();
+    ingresso = data;
+  }
+
+  if (!ingresso) redirect("/ingressos");
 
   const ing = ingresso as Ingresso;
 
@@ -55,7 +71,7 @@ export default async function ConfirmadoPage({ searchParams }: Props) {
   const qrCode = ing.qr_code!;
   const appUrl =
     process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
-    "https://chapter-eventos.vercel.app";
+    "https://chapterbsb.vercel.app";
 
   const validarUrl = `${appUrl}/validar/${qrCode}`;
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(validarUrl)}`;

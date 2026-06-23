@@ -19,15 +19,6 @@ const CATEGORIAS_VALIDAS: Categoria[] = [
 ];
 
 export async function POST(req: NextRequest) {
-  const secret = process.env.INFINITEPAY_WEBHOOK_SECRET;
-  const authHeader = req.headers.get("authorization");
-
-  console.log("[webhook/infinitepay] Auth header:", authHeader);
-
-  if (secret && authHeader !== `Bearer ${secret}`) {
-    return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
-  }
-
   let body: Record<string, unknown>;
   try {
     body = await req.json();

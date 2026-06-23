@@ -79,9 +79,6 @@ export default async function ComprarPage({ searchParams }: Props) {
           <p className="text-zinc-400 text-sm">
             R$ {preco.toFixed(2).replace(".", ",")}
           </p>
-          <p className="text-zinc-700 text-xs">
-            {total - vendidos} vaga{total - vendidos !== 1 ? "s" : ""} disponível{total - vendidos !== 1 ? "is" : ""}
-          </p>
         </div>
 
         <CheckoutForm

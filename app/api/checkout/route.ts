@@ -32,6 +32,8 @@ interface CheckoutBody {
   email: string;
   telefone?: string;
   seguro_reembolso?: boolean;
+  codigo_cupom?: string;
+  desconto?: number;
 }
 
 export async function POST(req: NextRequest) {
@@ -42,7 +44,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Payload inválido." }, { status: 400 });
   }
 
-  const { lote_id, categoria, nome, email, telefone, seguro_reembolso = false } = body;
+  const { lote_id, categoria, nome, email, telefone, seguro_reembolso = false, codigo_cupom, desconto: descontoCliente } = body;
 
   if (!lote_id || !categoria || !nome || !email) {
     return NextResponse.json({ error: "Campos obrigatórios ausentes." }, { status: 400 });
@@ -78,7 +80,29 @@ export async function POST(req: NextRequest) {
   }
 
   const precoReais = getPrecoCategoria(loteTyped, cat);
-  const totalReais = precoReais + (seguro_reembolso ? PRECO_SEGURO_REAIS : 0);
+
+  // Revalida cupom no servidor se fornecido
+  let descontoFinal = 0;
+  let cupomId: string | null = null;
+  if (codigo_cupom) {
+    const { data: cupom } = await supabaseAdmin
+      .from("cupons")
+      .select("id, desconto_percentual, ativo")
+      .ilike("codigo", codigo_cupom.trim())
+      .eq("ativo", true)
+      .single();
+
+    if (cupom) {
+      const percentual = cupom.desconto_percentual as number;
+      descontoFinal = Math.round(precoReais * (percentual / 100) * 100) / 100;
+      cupomId = cupom.id as string;
+    }
+    // Se cupom inválido no servidor, ignora desconto silenciosamente
+    void descontoCliente; // cliente enviou mas não confiamos
+  }
+
+  const precoComDesconto = Math.max(0, precoReais - descontoFinal);
+  const totalReais = precoComDesconto + (seguro_reembolso ? PRECO_SEGURO_REAIS : 0);
   const totalCentavos = Math.round(totalReais * 100);
 
   const orderNsu = `chapter-${uuidv4()}`;
@@ -109,6 +133,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Erro ao registrar pedido." }, { status: 500 });
   }
 
+  // Incrementa usos do cupom
+  if (cupomId) {
+    await supabaseAdmin.rpc("increment_cupom_usos", { cupom_id: cupomId });
+  }
+
   const appUrl =
     process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
     "https://chapter-eventos.vercel.app";
@@ -121,7 +150,7 @@ export async function POST(req: NextRequest) {
   const items: { quantity: number; price: number; description: string }[] = [
     {
       quantity: 1,
-      price: Math.round(precoReais * 100),
+      price: Math.round(precoComDesconto * 100),
       description: `Ingresso Chapter — 15/08/2026 (${cat.replace("_", " ")})`,
     },
   ];

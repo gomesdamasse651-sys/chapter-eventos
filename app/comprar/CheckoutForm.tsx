@@ -35,10 +35,62 @@ export default function CheckoutForm({
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState("");
 
-  const total = precoReais + (seguro ? PRECO_SEGURO : 0);
+  // Cupom
+  const [codigoCupom, setCodigoCupom] = useState("");
+  const [cupomAplicado, setCupomAplicado] = useState<{
+    codigo: string;
+    desconto: number;
+    preco_final: number;
+  } | null>(null);
+  const [cupomErro, setCupomErro] = useState("");
+  const [cupomLoading, setCupomLoading] = useState(false);
+
+  const precoBase = cupomAplicado ? cupomAplicado.preco_final : precoReais;
+  const total = precoBase + (seguro ? PRECO_SEGURO : 0);
 
   function handleTelefone(e: React.ChangeEvent<HTMLInputElement>) {
     setTelefone(maskTelefone(e.target.value));
+  }
+
+  async function handleAplicarCupom() {
+    if (!codigoCupom.trim()) return;
+    setCupomLoading(true);
+    setCupomErro("");
+    setCupomAplicado(null);
+
+    try {
+      const res = await fetch("/api/cupons/validar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ codigo: codigoCupom.trim(), preco: precoReais }),
+      });
+      const data = await res.json() as {
+        valido: boolean;
+        codigo?: string;
+        desconto?: number;
+        preco_final?: number;
+      };
+
+      if (data.valido && data.desconto !== undefined && data.preco_final !== undefined && data.codigo) {
+        setCupomAplicado({
+          codigo: data.codigo,
+          desconto: data.desconto,
+          preco_final: data.preco_final,
+        });
+      } else {
+        setCupomErro("Cupom inválido ou expirado.");
+      }
+    } catch {
+      setCupomErro("Erro ao validar cupom.");
+    } finally {
+      setCupomLoading(false);
+    }
+  }
+
+  function handleRemoverCupom() {
+    setCupomAplicado(null);
+    setCodigoCupom("");
+    setCupomErro("");
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -57,6 +109,9 @@ export default function CheckoutForm({
           email: email.trim(),
           telefone: telefone.replace(/\D/g, "") || undefined,
           seguro_reembolso: seguro,
+          ...(cupomAplicado
+            ? { codigo_cupom: cupomAplicado.codigo, desconto: cupomAplicado.desconto }
+            : {}),
         }),
       });
 
@@ -117,6 +172,49 @@ export default function CheckoutForm({
         />
       </div>
 
+      {/* Cupom */}
+      <div className="flex flex-col gap-2">
+        <label className="text-xs tracking-widest uppercase text-zinc-500">
+          Cupom{" "}
+          <span className="text-zinc-700 normal-case">(opcional)</span>
+        </label>
+        {cupomAplicado ? (
+          <div className="flex items-center justify-between border border-zinc-800 px-4 py-3">
+            <span className="text-green-400 text-sm tracking-widest uppercase">
+              {cupomAplicado.codigo} — −R$ {cupomAplicado.desconto.toFixed(2).replace(".", ",")}
+            </span>
+            <button
+              type="button"
+              onClick={handleRemoverCupom}
+              className="text-zinc-600 text-xs tracking-widest uppercase hover:text-white transition-colors"
+            >
+              Remover
+            </button>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={codigoCupom}
+              onChange={(e) => { setCodigoCupom(e.target.value.toUpperCase()); setCupomErro(""); }}
+              className="flex-1 bg-transparent border border-zinc-800 px-4 py-3 text-white focus:outline-none focus:border-zinc-500 transition-colors uppercase tracking-widest text-sm"
+              placeholder="CÓDIGO"
+            />
+            <button
+              type="button"
+              onClick={handleAplicarCupom}
+              disabled={cupomLoading || !codigoCupom.trim()}
+              className="px-4 py-3 border border-zinc-700 text-xs tracking-widest uppercase hover:border-white transition-colors disabled:opacity-40"
+            >
+              {cupomLoading ? "..." : "Aplicar"}
+            </button>
+          </div>
+        )}
+        {cupomErro && (
+          <p className="text-red-500 text-xs">{cupomErro}</p>
+        )}
+      </div>
+
       {/* Seguro reembolsável */}
       <label className="flex items-start gap-3 cursor-pointer group">
         <div
@@ -146,6 +244,12 @@ export default function CheckoutForm({
           </span>
           <span>R$ {precoReais.toFixed(2).replace(".", ",")}</span>
         </div>
+        {cupomAplicado && (
+          <div className="flex justify-between text-sm text-green-500">
+            <span>Desconto ({cupomAplicado.codigo})</span>
+            <span>−R$ {cupomAplicado.desconto.toFixed(2).replace(".", ",")}</span>
+          </div>
+        )}
         {seguro && (
           <div className="flex justify-between text-sm text-zinc-500">
             <span>Seguro Reembolsável</span>
